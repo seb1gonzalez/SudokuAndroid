@@ -1,3 +1,5 @@
+//Sebastian Gonzalez
+
 package edu.utep.cs.cs4330.sudoku;
 
 import android.support.v7.app.AppCompatActivity;
@@ -66,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
         medBTN = findViewById(R.id.MEDIUMBTN);
         hardBTN = findViewById(R.id.HARDBTN);
 
+        toast("Select a square first, then a number");
+
         easyBTN.setOnClickListener(e->easyClicked());
         medBTN.setOnClickListener(e->mediumClicked());
         hardBTN.setOnClickListener(e->hardClicked());
@@ -85,6 +89,9 @@ public class MainActivity extends AppCompatActivity {
     }
     /**changes booleans in BoardView and re-draws canvas*/
     public void easyClicked(){
+        boardView.changeNumber= false;
+        boardView.squareTouched = false;
+
         boardView.easySelected = true;
         boardView.mediumSelected = false;
         boardView.hardSelected = false;
@@ -95,9 +102,13 @@ public class MainActivity extends AppCompatActivity {
         toast("Easy Puzzle");
         boardView.invalidate();
 
+
     }
     /**changes booleans in BoardView and re-draws canvas*/
     public void mediumClicked(){
+        boardView.changeNumber= false;
+        boardView.squareTouched = false;
+
         boardView.easySelected = false;
         boardView.mediumSelected = true;
         boardView.hardSelected = false;
@@ -107,9 +118,13 @@ public class MainActivity extends AppCompatActivity {
         hardBTN.setEnabled(true);
         toast("Medium Puzzle");
         boardView.invalidate();
+
     }
     /**changes booleans in BoardView and re-draws canvas*/
     public void hardClicked(){
+        boardView.changeNumber= false;
+        boardView.squareTouched = false;
+
         boardView.easySelected = false;
         boardView.mediumSelected = false;
         boardView.hardSelected = true;
@@ -124,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
     public void newClicked(View view) {
         boardView.newGame();
         boardView.invalidate();
-        toast("New clicked.");
+        toast("New game started");
 
     }
 
@@ -134,14 +149,30 @@ public class MainActivity extends AppCompatActivity {
      *          or 0 for the delete button.
      */
     public void numberClicked(int n) {
+
         if(boardView.squareTouched) {
-            boardView.changeNumber = true;
             boardView.numberSelected = n;
-            boardView.putNumber();
-            boardView.invalidate();
+            boardView.changeNumber = true;
+
+            if(boardView.easySelected){
+
+                boardView.invalidate();
+                boardView.easy[boardView.yPosSelected][boardView.xPosSelected] = n;
+            }
+            if(boardView.mediumSelected){
+
+                boardView.invalidate();
+                boardView.medium[boardView.yPosSelected][boardView.xPosSelected] = n;
+            }
+            if(boardView.hardSelected){
+
+                boardView.invalidate();
+               boardView.hard[boardView.yPosSelected][boardView.xPosSelected] = n;
+            }
             toast("Number clicked " + n);
         }
         else{
+            boardView.changeNumber = false;
             toast("Select a square first");
         }
     }
@@ -155,12 +186,29 @@ public class MainActivity extends AppCompatActivity {
     private void squareSelected(int x, int y) {
      boardView.xPosSelected = x;
      boardView.yPosSelected = y;
-     boardView.squareTouched = true;
-        toast(String.format("Square selected: (%d, %d)", x, y));
+     boardView.markTheSquare = true;
+     boardView.invalidate();
+
+     if(boardView.easySelected && boardView.EASY_SUDOKU[y][x]==0){
+         boardView.squareTouched = true;
+         toast(String.format("Square selected: (%d, %d)", x, y));
+     }
+     else if(boardView.mediumSelected && boardView.MEDIUM_SUDOKU[y][x]==0){
+         boardView.squareTouched = true;
+         toast(String.format("Square selected: (%d, %d)", x, y));
+     }
+     else if(boardView.hardSelected && boardView.HARD_SUDOKU[y][x] == 0){
+         boardView.squareTouched = true;
+         toast(String.format("Square selected: (%d, %d)", x, y));
+     }
+     else{
+         boardView.squareTouched = false;
+         toast("Select another square");
+     }
     }
 
     /** Show a toast message. */
-    private void toast(String msg) {
+    protected void toast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
