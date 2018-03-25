@@ -4,13 +4,19 @@ package edu.utep.cs.cs4330.sudoku;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
+import android.view.ContextMenu;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.Inflater;
 
 import edu.utep.cs.cs4330.sudoku.model.Board;
 
@@ -38,11 +44,10 @@ public class MainActivity extends AppCompatActivity {
 
     private Board board;
 
+
     private BoardView boardView;
     /**Buttons to represent levels of difficulty*/
-    private Button easyBTN;
-    private Button medBTN;
-    private Button hardBTN;
+
 
     /** All the number buttons. */
     private List<View> numberButtons;
@@ -55,28 +60,23 @@ public class MainActivity extends AppCompatActivity {
     private static int buttonWidth;
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.mymenu, menu);
+        return true;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         board = new Board(9);
         boardView = findViewById(R.id.boardView);
         boardView.setBoard(board);
         boardView.addSelectionListener(this::squareSelected);
 
-        easyBTN = findViewById(R.id.EASYBTN);
-        medBTN = findViewById(R.id.MEDIUMBTN);
-        hardBTN = findViewById(R.id.HARDBTN);
 
         toast("Select a square first, then a number");
-
-        easyBTN.setOnClickListener(e->easyClicked());
-        medBTN.setOnClickListener(e->mediumClicked());
-        hardBTN.setOnClickListener(e->hardClicked());
-
-        easyBTN.setEnabled(false);
-        medBTN.setEnabled(true);
-        hardBTN.setEnabled(true);
 
         numberButtons = new ArrayList<>(numberIds.length);
         for (int i = 0; i < numberIds.length; i++) {
@@ -87,6 +87,26 @@ public class MainActivity extends AppCompatActivity {
             setButtonWidth(button);
         }
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_Solve:
+                toast("Puzzle solved");
+                return true;
+            case R.id.easyMenu:
+                easyClicked();
+                return true;
+            case R.id.mediumMenu:
+                mediumClicked();
+                return true;
+            case R.id.hardMenu:
+                hardClicked();
+                return true;
+        }
+        return true;
+    }
+
     /**changes booleans in BoardView and re-draws canvas*/
     public void easyClicked(){
         boardView.changeNumber= false;
@@ -96,9 +116,6 @@ public class MainActivity extends AppCompatActivity {
         boardView.mediumSelected = false;
         boardView.hardSelected = false;
 
-        easyBTN.setEnabled(false);
-        medBTN.setEnabled(true);
-        hardBTN.setEnabled(true);
         toast("Easy Puzzle");
         boardView.invalidate();
 
@@ -113,9 +130,6 @@ public class MainActivity extends AppCompatActivity {
         boardView.mediumSelected = true;
         boardView.hardSelected = false;
 
-        easyBTN.setEnabled(true);
-        medBTN.setEnabled(false);
-        hardBTN.setEnabled(true);
         toast("Medium Puzzle");
         boardView.invalidate();
 
@@ -129,9 +143,7 @@ public class MainActivity extends AppCompatActivity {
         boardView.mediumSelected = false;
         boardView.hardSelected = true;
 
-        easyBTN.setEnabled(true);
-        medBTN.setEnabled(true);
-        hardBTN.setEnabled(false);
+
         toast("Hard Puzzle");
         boardView.invalidate();
     }

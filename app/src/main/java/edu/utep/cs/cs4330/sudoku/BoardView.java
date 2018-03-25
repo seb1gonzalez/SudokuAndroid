@@ -56,7 +56,7 @@ public class BoardView extends View {
             {2,8,7,  4,0,9,  0,0,5},
             {3,0,0,  2,8,0,  1,7,0}
     };
-    int[][] easy = getCopyofPuzzle(EASY_SUDOKU);
+    int[][] easy = getCopyOfPuzzle(EASY_SUDOKU);
 
     /**2D array representing a medium configuration of sudoku*/
     final int[][] MEDIUM_SUDOKU = {
@@ -72,7 +72,7 @@ public class BoardView extends View {
             {8,3,0,  0,0,0,  0,0,0},
             {0,6,2,  0,4,0,  0,0,5}
     };
-    int[][] medium = getCopyofPuzzle(MEDIUM_SUDOKU);
+    int[][] medium = getCopyOfPuzzle(MEDIUM_SUDOKU);
 
     /**2D array representing a hard configuration of sudoku*/
     final int[][] HARD_SUDOKU = {
@@ -88,7 +88,7 @@ public class BoardView extends View {
             {0,0,0,  0,0,0,  0,0,5},
             {0,0,5,  0,0,0,  3,9,0}
     };
-    int[][] hard = getCopyofPuzzle(HARD_SUDOKU);
+    int[][] hard = getCopyOfPuzzle(HARD_SUDOKU);
 
     /** To notify a square selection. */
     public interface SelectionListener {
@@ -229,12 +229,12 @@ public class BoardView extends View {
         canvas.drawLine(8*maxCoord/9,0,8*maxCoord/9,maxCoord, linesPaint);
 
         //VERTICAL SECONDARY LINES
-        canvas.drawLine(0,maxCoord/9,maxCoord,maxCoord/9, linesPaint);
-        canvas.drawLine(0,2*maxCoord/9,maxCoord,2*maxCoord/9, linesPaint);
-        canvas.drawLine(0,4*maxCoord/9,maxCoord,4*maxCoord/9, linesPaint);
-        canvas.drawLine(0,5*maxCoord/9,maxCoord,5*maxCoord/9, linesPaint);
-        canvas.drawLine(0,7*maxCoord/9,maxCoord,7*maxCoord/9, linesPaint);
-        canvas.drawLine(0,8*maxCoord/9,maxCoord,8*maxCoord/9, linesPaint);
+        canvas.drawLine(0,maxCoord/boardSize,maxCoord,maxCoord/boardSize, linesPaint);
+        canvas.drawLine(0,2*maxCoord/boardSize,maxCoord,2*maxCoord/boardSize, linesPaint);
+        canvas.drawLine(0,4*maxCoord/boardSize,maxCoord,4*maxCoord/boardSize, linesPaint);
+        canvas.drawLine(0,5*maxCoord/boardSize,maxCoord,5*maxCoord/boardSize, linesPaint);
+        canvas.drawLine(0,7*maxCoord/boardSize,maxCoord,7*maxCoord/boardSize, linesPaint);
+        canvas.drawLine(0,8*maxCoord/boardSize,maxCoord,8*maxCoord/boardSize, linesPaint);
 
         linesPaint.setTextSize(90);
         linesPaint.setTextAlign(Paint.Align.CENTER);
@@ -242,7 +242,7 @@ public class BoardView extends View {
     }
 
     /** Copies a source 2D array and returns a new array with the source array contents */
-    public int[][] getCopyofPuzzle(int[][] sudoku){
+    public int[][] getCopyOfPuzzle(int[][] sudoku){
         int[][] newGrid =  new int[sudoku.length][sudoku.length];
         for (int i = 0; i < sudoku.length ; i++) {
             for (int j = 0; j < sudoku.length; j++) {
@@ -265,12 +265,12 @@ public class BoardView extends View {
             markPaint.setColor(Color.WHITE);
         }
 
-        canvas.drawText("[ ]", xPosSelected * (maxCoord() / 9) + 20, (yPosSelected + 1) * (maxCoord() / 9) - 30,markPaint);
+        canvas.drawText("|||", xPosSelected * (maxCoord() / 9) + 20, (yPosSelected + 1) * (maxCoord() / 9) - 30,markPaint);
     }
     public void putNumberOnEasy(Canvas canvas){
 
        // numbersInserted.add(yPosSelected,numbersInserted.add(xPosSelected));
-        canvas.drawText(String.valueOf(numberSelected), xPosSelected * (maxCoord() / 9) + 50, (yPosSelected + 1) * (maxCoord() / 9) - 30, easyPaint);
+        canvas.drawText(String.valueOf(numberSelected), xPosSelected * (maxCoord() / boardSize) + 50, (yPosSelected + 1) * (maxCoord() / 9) - 30, easyPaint);
         changeNumber = false;
     }
 
@@ -278,9 +278,10 @@ public class BoardView extends View {
 
 
        // insertedNumbers[yPosSelected].add(xPosSelected,numberSelected);
-        canvas.drawText(String.valueOf(numberSelected), xPosSelected * (maxCoord() / 9) + 50, (yPosSelected + 1) * (maxCoord() / 9) - 30, mediumPaint);
+        canvas.drawText(String.valueOf(numberSelected), xPosSelected * (maxCoord() / boardSize) + 50, (yPosSelected + 1) * (maxCoord() / 9) - 30, mediumPaint);
         changeNumber = false;
     }
+   
 
 
 
@@ -295,9 +296,9 @@ public class BoardView extends View {
     /**sets newGameRequested boolean to TRUE and overwrites ALL copies of original puzzles with the original puzzle version */
     public void newGame() {
         newGameRequested =true;
-        easy = getCopyofPuzzle(EASY_SUDOKU);
-        medium = getCopyofPuzzle(MEDIUM_SUDOKU);
-        hard = getCopyofPuzzle(HARD_SUDOKU);
+        easy = getCopyOfPuzzle(EASY_SUDOKU);
+        medium = getCopyOfPuzzle(MEDIUM_SUDOKU);
+        hard = getCopyOfPuzzle(HARD_SUDOKU);
 //        for(int i = 0; i < insertedNumbers.length;i++){
 //            insertedNumbers[i].clear();
 //        }
@@ -315,9 +316,7 @@ public class BoardView extends View {
                     }
                 }
                 else {
-//                    if(easy[y][x] == (int)insertedNumbers[y].get(x)){
-//                        canvas.drawText(String.valueOf(easy[y][x]), x * (maxCoord() / 9) + 60, (y + 1) * (maxCoord() / 9) - 30, easyPaint);
-//                    }
+
 
                     canvas.drawText(String.valueOf(easy[y][x]), x * (maxCoord() / 9) + 60, (y + 1) * (maxCoord() / 9) - 30, linesPaint);
                 }
