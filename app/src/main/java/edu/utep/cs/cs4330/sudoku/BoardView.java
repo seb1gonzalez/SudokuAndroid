@@ -9,11 +9,10 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import edu.utep.cs.cs4330.sudoku.model.Board;
+import edu.utep.cs.cs4330.sudoku.model.Puzzle;
 
 /**
  * A special view class to display a Sudoku board modeled by the
@@ -24,7 +23,6 @@ import edu.utep.cs.cs4330.sudoku.model.Board;
  * @author cheon
  */
 public class BoardView extends View {
-
     /** boolean variables to check when actions happen and to trigger some methods*/
     boolean squareTouched = false;
     /** global variables to save the x and y coordinate as the user taps a square in the grid*/
@@ -42,53 +40,8 @@ public class BoardView extends View {
     boolean mediumSelected =false;
     boolean hardSelected =false;
     boolean markTheSquare = false;
-    /**2D array representing an easy configuration of sudoku*/
-    final int[][] EASY_SUDOKU = {
-            {5,3,0,  0,0,8,  0,1,0},
-            {0,0,2,  1,0,5,  0,4,8},
-            {1,9,8,  0,4,0,  5,6,0},
-
-            {8,0,9,  0,6,1,  4,2,3},
-            {0,2,6,  0,0,3,  7,9,1},
-            {0,1,3,  0,2,4,  8,5,0},
-
-            {0,6,1,  0,0,7,  2,8,0},
-            {2,8,7,  4,0,9,  0,0,5},
-            {3,0,0,  2,8,0,  1,7,0}
-    };
-    int[][] easy = getCopyOfPuzzle(EASY_SUDOKU);
-
-    /**2D array representing a medium configuration of sudoku*/
-    final int[][] MEDIUM_SUDOKU = {
-            {2,0,0,  0,9,0,  5,1,0},
-            {0,0,0,  0,0,0,  0,4,9},
-            {0,9,0,  4,0,0,  3,0,2},
-
-            {0,8,0,  7,0,5,  9,0,0},
-            {9,0,5,  0,0,0,  6,0,3},
-            {0,0,6,  2,0,9,  0,5,0},
-
-            {4,0,1,  0,6,0,  0,9,0},
-            {8,3,0,  0,0,0,  0,0,0},
-            {0,6,2,  0,4,0,  0,0,5}
-    };
-    int[][] medium = getCopyOfPuzzle(MEDIUM_SUDOKU);
-
-    /**2D array representing a hard configuration of sudoku*/
-    final int[][] HARD_SUDOKU = {
-            {0,7,2,  0,0,0,  9,0,0},
-            {3,0,0,  0,0,0,  0,0,0},
-            {5,0,0,  0,4,0,  8,4,0},
-
-            {0,0,0,  0,0,8,  6,0,1},
-            {4,0,0,  6,0,7,  0,0,9},
-            {2,0,9,  5,0,0,  0,0,0},
-
-            {0,3,7,  0,6,0,  0,0,2},
-            {0,0,0,  0,0,0,  0,0,5},
-            {0,0,5,  0,0,0,  3,9,0}
-    };
-    int[][] hard = getCopyOfPuzzle(HARD_SUDOKU);
+    Puzzle puzzle9by9 = new Puzzle();
+    Puzzle puzzle4by4 = new Puzzle();
 
     /** To notify a square selection. */
     public interface SelectionListener {
