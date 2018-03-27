@@ -3,39 +3,67 @@ package edu.utep.cs.cs4330.sudoku.model;
 import java.util.ArrayList;
 import java.lang.Math;
 
+import edu.utep.cs.cs4330.sudoku.BoardView;
+
 /**
  * Created by sebas on 3/25/2018.
  */
 
 public class Puzzle {
+    public boolean easyPuzzle = true;
+    public boolean mediumPuzzle = false;
+    public boolean hardPuzzle = false;
+
 
     private ArrayList<Integer> list;
     ArrayList<ArrayList<Integer>> twoDArrayList = new ArrayList<ArrayList<Integer>>();
 
     private Board board = new Board();
-    private int selectedSize = board.size();                     // The size of the puzzle depends on the size of the Board
-    private int[][] grid = new int[selectedSize][selectedSize];
+    private int puzzleSize = board.size();
+    private int[][] grid = new int[puzzleSize][puzzleSize];
 
     public  Puzzle(){
     }
 
-    private void generatePuzzle(){
 
-        for (int y = 0; y < selectedSize; y++) {
-            for (int x = 0; x <selectedSize ; x++) {
-                twoDArrayList. = (int)(Math.random()*10);          //Add random integers from 0-9 to the 2D array
+    public int[][] generatePuzzle(){
+
+        for (int y = 0; y < puzzleSize; y++) {
+            for (int x = 0; x <puzzleSize; x++) {
+                grid[y][x]= (int)(Math.random()*(puzzleSize+1));
+               //Add random integers to the 2D array
             }
         }
-        checkX();
-        transpose(grid);
-        checkX();
+       if(easyPuzzle){
+           for (int i = 0; i < 3; i++) {
+               makeHoles();
+           }
+
+        }
+        if(mediumPuzzle) {
+            for (int i = 0; i < 8; i++) {
+                makeHoles();
+            }
+        }
+        if (hardPuzzle) {
+            for (int i = 0; i < 11; i++) {
+                makeHoles();
+            }
+        }
+      return this.grid;
 
 
     }
+    private void makeHoles(){
+        for (int i = 0; i < puzzleSize; i++) {
+            grid[(int)(Math.random()*(puzzleSize))][(int)(Math.random()*(puzzleSize))] = 0;
+
+        }
+    }
     private void checkX(){
-        for (int j = 0; j < selectedSize ; j++) {
+        for (int j = 0; j < board.size() ; j++) {
             list.clear();
-            for (int i = 0; i < selectedSize; i++) {
+            for (int i = 0; i < board.size(); i++) {
 
                 if (list.isEmpty()) {
                     list.add( grid[j][i]);

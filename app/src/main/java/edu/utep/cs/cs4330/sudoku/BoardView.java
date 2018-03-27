@@ -23,6 +23,12 @@ import edu.utep.cs.cs4330.sudoku.model.Puzzle;
  * @author cheon
  */
 public class BoardView extends View {
+
+   Puzzle puzzle = new Puzzle();
+
+
+
+
     /** boolean variables to check when actions happen and to trigger some methods*/
     boolean squareTouched = false;
     /** global variables to save the x and y coordinate as the user taps a square in the grid*/
@@ -40,8 +46,9 @@ public class BoardView extends View {
     boolean mediumSelected =false;
     boolean hardSelected =false;
     boolean markTheSquare = false;
-    Puzzle puzzle9by9 = new Puzzle();
-    Puzzle puzzle4by4 = new Puzzle();
+    boolean big = true;
+    boolean small = false;
+
 
     /** To notify a square selection. */
     public interface SelectionListener {
@@ -55,9 +62,15 @@ public class BoardView extends View {
     /** Listeners to be notified when a square is selected. */
     private final List<SelectionListener> listeners = new ArrayList<>();
     /** Board to be displayed by this view. */
-    private Board board = new Board(9);
+    private Board board = new Board();
     /** Number of squares in rows and columns.*/
     private int boardSize = board.size();
+    int[][] easy=  new int[boardSize][boardSize];
+    int[][] medium = new int[boardSize][boardSize];
+    int[][] hard = new int[boardSize][boardSize];
+
+
+
 
 
 
@@ -113,11 +126,17 @@ public class BoardView extends View {
         this.board = board;
         boardSize = board.size;
     }
+    public void buildPuzzles(){
+        easy=  puzzle.generatePuzzle();
+        medium = puzzle.generatePuzzle();
+        hard = puzzle.generatePuzzle();
+    }
 
     /** Draw a 2-D graphics representation of the associated board. */
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
         canvas.translate(transX, transY);
         if (board != null) {
 
@@ -129,6 +148,9 @@ public class BoardView extends View {
             }
 
              if(easySelected){// first puzzle to be displayed when the app starts
+                 puzzle.easyPuzzle = true;
+                 puzzle.mediumPuzzle = false;
+                 puzzle.hardPuzzle = false;
                  easyPaint.setTextSize(90);easyPaint.setColor(Color.GREEN);
 
                  displayEasyPuzzle(canvas);
@@ -137,12 +159,18 @@ public class BoardView extends View {
              }
              else if(mediumSelected){
                  mediumPaint.setTextSize(90); mediumPaint.setColor(Color.WHITE);
+                 puzzle.easyPuzzle = false;
+                 puzzle.mediumPuzzle = true;
+                 puzzle.hardPuzzle = false;
                  displayMediumPuzzle(canvas);
 
 
              }
             else if(hardSelected){
                  hardPaint.setTextSize(90);hardPaint.setColor(Color.BLUE);
+                 puzzle.easyPuzzle = false;
+                 puzzle.mediumPuzzle = false;
+                 puzzle.hardPuzzle = true;
                  displayHardPuzzle(canvas);
 
 
@@ -160,34 +188,45 @@ public class BoardView extends View {
 
         linesPaint.setStrokeWidth(9);
         linesPaint.setColor(Color.WHITE);
-
-        //HORIZONTAL PRIMARY LINES
-        canvas.drawLine(maxCoord/3,0,maxCoord/3,maxCoord, linesPaint);
-        canvas.drawLine(2*maxCoord/3,0,2*maxCoord/3,maxCoord, linesPaint);
-
-
-        //VERTICAL PRIMARY LINES
-        canvas.drawLine(0,maxCoord/3,maxCoord,maxCoord/3, linesPaint);
-        canvas.drawLine(0,2*maxCoord/3,maxCoord,2*maxCoord/3, linesPaint);
+        if(big) {
+            boardSize=9;
+            //HORIZONTAL PRIMARY LINES
+            canvas.drawLine(maxCoord / 3, 0, maxCoord / 3, maxCoord, linesPaint);
+            canvas.drawLine(2 * maxCoord / 3, 0, 2 * maxCoord / 3, maxCoord, linesPaint);
 
 
-        linesPaint.setStrokeWidth(2);
+            //VERTICAL PRIMARY LINES
+            canvas.drawLine(0, maxCoord / 3, maxCoord, maxCoord / 3, linesPaint);
+            canvas.drawLine(0, 2 * maxCoord / 3, maxCoord, 2 * maxCoord / 3, linesPaint);
 
-        //HORIZONTAL SECONDARY LINES
-        canvas.drawLine(maxCoord/9,0,maxCoord/9,maxCoord, linesPaint);
-        canvas.drawLine(2*maxCoord/9,0,2*maxCoord/9,maxCoord, linesPaint);
-        canvas.drawLine(4*maxCoord/9,0,4*maxCoord/9,maxCoord, linesPaint);
-        canvas.drawLine(5*maxCoord/9,0,5*maxCoord/9,maxCoord, linesPaint);
-        canvas.drawLine(7*maxCoord/9,0,7*maxCoord/9,maxCoord, linesPaint);
-        canvas.drawLine(8*maxCoord/9,0,8*maxCoord/9,maxCoord, linesPaint);
 
-        //VERTICAL SECONDARY LINES
-        canvas.drawLine(0,maxCoord/boardSize,maxCoord,maxCoord/boardSize, linesPaint);
-        canvas.drawLine(0,2*maxCoord/boardSize,maxCoord,2*maxCoord/boardSize, linesPaint);
-        canvas.drawLine(0,4*maxCoord/boardSize,maxCoord,4*maxCoord/boardSize, linesPaint);
-        canvas.drawLine(0,5*maxCoord/boardSize,maxCoord,5*maxCoord/boardSize, linesPaint);
-        canvas.drawLine(0,7*maxCoord/boardSize,maxCoord,7*maxCoord/boardSize, linesPaint);
-        canvas.drawLine(0,8*maxCoord/boardSize,maxCoord,8*maxCoord/boardSize, linesPaint);
+            linesPaint.setStrokeWidth(2);
+
+            //HORIZONTAL SECONDARY LINES
+            for(int i = 1; i < boardSize;i++) {
+                canvas.drawLine(i* maxCoord / boardSize, 0, i*maxCoord / boardSize, maxCoord, linesPaint);
+            }
+            //VERTICAL SECONDARY LINES
+            for(int i = 1; i < boardSize;i++) {
+                canvas.drawLine(0, i * maxCoord / boardSize, maxCoord, i * maxCoord / boardSize, linesPaint);
+            }
+        }
+        if(small){
+            boardSize = 4;
+
+            linesPaint.setStrokeWidth(9);
+            canvas.drawLine(maxCoord / 2, 0, maxCoord / 2, maxCoord, linesPaint);
+            canvas.drawLine(0, maxCoord / 2, maxCoord, maxCoord / 2, linesPaint);
+            linesPaint.setStrokeWidth(2);
+
+            for (int i = 1; i <boardSize; i++) {
+                canvas.drawLine(0, i* maxCoord / boardSize, maxCoord, i*maxCoord / boardSize, linesPaint);
+            }
+            for (int i = 1; i <boardSize; i++) {
+                canvas.drawLine(i* maxCoord / boardSize,0 ,i*maxCoord / boardSize,maxCoord, linesPaint);
+            }
+
+        }
 
         linesPaint.setTextSize(90);
         linesPaint.setTextAlign(Paint.Align.CENTER);
@@ -195,21 +234,14 @@ public class BoardView extends View {
     }
 
     /** Copies a source 2D array and returns a new array with the source array contents */
-    public int[][] getCopyOfPuzzle(int[][] sudoku){
-        int[][] newGrid =  new int[sudoku.length][sudoku.length];
-        for (int i = 0; i < sudoku.length ; i++) {
-            for (int j = 0; j < sudoku.length; j++) {
-                newGrid[j][i] = sudoku[j][i];
-            }
-        }
-        return newGrid;
-    }
+
 
 
     public void markSelection(Canvas canvas){
-        markPaint.setTextSize(90);
+
         if(easySelected){
             markPaint.setColor(Color.BLUE);
+
         }
         if(mediumSelected){
             markPaint.setColor(Color.YELLOW);
@@ -218,12 +250,25 @@ public class BoardView extends View {
             markPaint.setColor(Color.WHITE);
         }
 
-        canvas.drawText("|||", xPosSelected * (maxCoord() / 9) + 20, (yPosSelected + 1) * (maxCoord() / 9) - 30,markPaint);
+        if(big){
+            markPaint.setTextAlign(Paint.Align.CENTER);
+            markPaint.setTextSize(90);
+            canvas.drawText("|||", xPosSelected * (maxCoord() / boardSize) + 50, (yPosSelected + 1) * (maxCoord() / boardSize) - 30,markPaint);
+
+        }
+        if(small){
+            markPaint.setTextAlign(Paint.Align.RIGHT);
+            markPaint.setTextSize(190);
+            canvas.drawText("|||", xPosSelected * (maxCoord() / boardSize) + 190, (yPosSelected +1) * (maxCoord() / boardSize)-80,markPaint);
+
+        }
+
+
     }
     public void putNumberOnEasy(Canvas canvas){
 
        // numbersInserted.add(yPosSelected,numbersInserted.add(xPosSelected));
-        canvas.drawText(String.valueOf(numberSelected), xPosSelected * (maxCoord() / boardSize) + 50, (yPosSelected + 1) * (maxCoord() / 9) - 30, easyPaint);
+        canvas.drawText(String.valueOf(numberSelected), xPosSelected * (maxCoord() / boardSize) + 50, (yPosSelected + 1) * (maxCoord() / boardSize) - 30, easyPaint);
         changeNumber = false;
     }
 
@@ -231,7 +276,7 @@ public class BoardView extends View {
 
 
        // insertedNumbers[yPosSelected].add(xPosSelected,numberSelected);
-        canvas.drawText(String.valueOf(numberSelected), xPosSelected * (maxCoord() / boardSize) + 50, (yPosSelected + 1) * (maxCoord() / 9) - 30, mediumPaint);
+        canvas.drawText(String.valueOf(numberSelected), xPosSelected * (maxCoord() / boardSize) + 50, (yPosSelected + 1) * (maxCoord() / boardSize) - 30, mediumPaint);
         changeNumber = false;
     }
    
@@ -242,36 +287,44 @@ public class BoardView extends View {
 
 
         //insertedNumbers[yPosSelected].add(xPosSelected,numberSelected);
-        canvas.drawText(String.valueOf(numberSelected), xPosSelected * (maxCoord() / 9) + 50, (yPosSelected + 1) * (maxCoord() / 9) - 30, hardPaint);
+        canvas.drawText(String.valueOf(numberSelected), xPosSelected * (maxCoord() / boardSize) + 50, (yPosSelected + 1) * (maxCoord() / boardSize) - 30, hardPaint);
         changeNumber = false;
 
     }
     /**sets newGameRequested boolean to TRUE and overwrites ALL copies of original puzzles with the original puzzle version */
     public void newGame() {
         newGameRequested =true;
-        easy = getCopyOfPuzzle(EASY_SUDOKU);
-        medium = getCopyOfPuzzle(MEDIUM_SUDOKU);
-        hard = getCopyOfPuzzle(HARD_SUDOKU);
-//        for(int i = 0; i < insertedNumbers.length;i++){
-//            insertedNumbers[i].clear();
-//        }
+        buildPuzzles();
+        newGameRequested=false;
 
         }
     /** draws each element of the puzzle to the canvas and checks for zeros to mark as blank space. It also records the number taken as input*/
     public void displayEasyPuzzle(Canvas canvas) {
+        if(big){
+
+            linesPaint.setTextSize(90);
+        }
+        if(small){
+
+            linesPaint.setTextSize(190);
+        }
         linesPaint.setColor(Color.WHITE);
         for (int y = 0; y < easy.length; y++) {
             for (int x = 0; x < easy.length; x++) {
                 if (easy[y][x] == 0) {
-                    canvas.drawText(" ", x * (maxCoord() / 9) + 60, (y + 1) * (maxCoord() / 9) - 30, linesPaint);
+                    canvas.drawText(" ", x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, linesPaint);
                     if(changeNumber){
                         putNumberOnEasy(canvas);
                     }
                 }
                 else {
+                    if(big){
+                        canvas.drawText(String.valueOf(easy[y][x]), x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, linesPaint);
+                     }
+                     if(small){
+                        canvas.drawText(String.valueOf(easy[y][x]), x * (maxCoord() / boardSize) + 140, (y + 1) * (maxCoord() / boardSize) - 70, linesPaint);
 
-
-                    canvas.drawText(String.valueOf(easy[y][x]), x * (maxCoord() / 9) + 60, (y + 1) * (maxCoord() / 9) - 30, linesPaint);
+                     }
                 }
             }
 
@@ -280,34 +333,50 @@ public class BoardView extends View {
     /** draws each element of the puzzle to the canvas and checks for zeros to mark as blank space. It also records the number taken as input*/
     public void displayMediumPuzzle(Canvas canvas){
         linesPaint.setColor(Color.GREEN);
+        if(big){
+
+            linesPaint.setTextSize(90);
+        }
+        if(small){
+
+            linesPaint.setTextSize(190);
+        }
         for (int y = 0; y < medium.length; y++) {
             for (int x = 0; x < medium.length; x++) {
                 if (medium[y][x] == 0) {
-                    canvas.drawText(" ", x * (maxCoord() / 9) + 60, (y + 1) * (maxCoord() / 9) - 30, linesPaint);
+                    canvas.drawText(" ", x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, linesPaint);
                     if(changeNumber){
                         putNumberOnMedium(canvas);
                     }
                 }
                 else{
 
-                    canvas.drawText(String.valueOf(medium[y][x]), x * (maxCoord() / 9) + 60, (y + 1) * (maxCoord() / 9) - 30, linesPaint);}
+                    canvas.drawText(String.valueOf(medium[y][x]), x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, linesPaint);}
             }
         }
     }
     /** draws each element of the puzzle to the canvas and checks for zeros to mark as blank space. It also records the number taken as input*/
     public void displayHardPuzzle(Canvas canvas){
+        if(big){
+
+            linesPaint.setTextSize(90);
+        }
+        if(small){
+
+            linesPaint.setTextSize(190);
+        }
         linesPaint.setColor(Color.YELLOW);
         for (int y = 0; y < hard.length; y++) {
             for (int x = 0; x < hard.length; x++) {
                 if (hard[y][x] == 0) {
-                    canvas.drawText(" ", x * (maxCoord() / 9) + 60, (y + 1) * (maxCoord() / 9) - 30,linesPaint);
+                    canvas.drawText(" ", x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30,linesPaint);
                     if(changeNumber){
                         putNumberOnHard(canvas);
                     }
                 }
                 else {
 
-                    canvas.drawText(String.valueOf(hard[y][x]), x * (maxCoord() / 9) + 60, (y + 1) * (maxCoord() / 9) - 30, linesPaint);
+                    canvas.drawText(String.valueOf(hard[y][x]), x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, linesPaint);
                 }
             }
         }

@@ -11,13 +11,15 @@
         android:id="@+id/new_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="136dp"
+        android:layout_marginTop="4dp"
         android:backgroundTint="@android:color/holo_green_light"
         android:onClick="newClicked"
         android:text="New"
         android:textColor="@android:color/white"
         android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -44,6 +46,7 @@
         android:layout_marginBottom="16dp"
         android:backgroundTint="@android:color/holo_orange_dark"
         android:text="5"
+        android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -57,6 +60,7 @@
         android:elevation="0dp"
         android:text="1"
         android:textColor="@android:color/black"
+        android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintRight_toLeftOf="@+id/n2"
         app:layout_constraintTop_toTopOf="@+id/n2" />
@@ -68,6 +72,7 @@
         android:backgroundTint="@android:color/holo_orange_dark"
         android:text="2"
         android:textColor="@android:color/black"
+        android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintRight_toLeftOf="@+id/n3"
         app:layout_constraintTop_toTopOf="@+id/n3" />
@@ -78,6 +83,7 @@
         android:layout_height="wrap_content"
         android:backgroundTint="@android:color/holo_orange_dark"
         android:text="3"
+        android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintRight_toLeftOf="@+id/n4"
         app:layout_constraintTop_toTopOf="@+id/n4" />
@@ -88,6 +94,7 @@
         android:layout_height="wrap_content"
         android:backgroundTint="@android:color/holo_orange_dark"
         android:text="4"
+        android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintRight_toLeftOf="@+id/n5"
         app:layout_constraintTop_toTopOf="@+id/n5" />
@@ -98,6 +105,7 @@
         android:layout_height="wrap_content"
         android:backgroundTint="@android:color/holo_orange_dark"
         android:text="6"
+        android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintLeft_toRightOf="@+id/n5"
         app:layout_constraintTop_toTopOf="@+id/n5" />
@@ -108,6 +116,7 @@
         android:layout_height="wrap_content"
         android:backgroundTint="@android:color/holo_orange_dark"
         android:text="7"
+        android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintLeft_toRightOf="@+id/n6"
         app:layout_constraintTop_toTopOf="@+id/n6" />
@@ -118,6 +127,7 @@
         android:layout_height="wrap_content"
         android:backgroundTint="@android:color/holo_orange_dark"
         android:text="8"
+        android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintLeft_toRightOf="@+id/n7"
         app:layout_constraintTop_toTopOf="@+id/n7" />
@@ -128,6 +138,7 @@
         android:layout_height="wrap_content"
         android:backgroundTint="@android:color/holo_orange_dark"
         android:text="9"
+        android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintLeft_toRightOf="@+id/n8"
         app:layout_constraintTop_toTopOf="@+id/n8" />

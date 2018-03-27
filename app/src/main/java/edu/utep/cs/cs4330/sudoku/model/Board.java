@@ -5,13 +5,12 @@ package edu.utep.cs.cs4330.sudoku.model;
  * An abstraction of Sudoku puzzle.
  */
 public class Board {
-    public boolean smallGrid = false;
-    public boolean bigGrid = false;
+
 
     /**
      * Size of this board (number of columns/rows).
      */
-    public static int size;
+    public static int size = 9;
 
 
     /**
@@ -20,7 +19,7 @@ public class Board {
     public Board() {
     }
 
-    public static void setSize(int size) {
+    public void setSize(int size) {
         Board.size = size;
     }
 

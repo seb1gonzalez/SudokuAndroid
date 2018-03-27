@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.zip.Inflater;
 
 import edu.utep.cs.cs4330.sudoku.model.Board;
+import edu.utep.cs.cs4330.sudoku.model.Puzzle;
 
 /**
  * HW1 template for developing an app to play simple Sudoku games.
@@ -43,7 +44,7 @@ import edu.utep.cs.cs4330.sudoku.model.Board;
 public class MainActivity extends AppCompatActivity {
 
     private Board board;
-
+    private Puzzle puzzle;
 
     private BoardView boardView;
     /**Buttons to represent levels of difficulty*/
@@ -70,10 +71,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        board = new Board(9);
+        board = new Board();
+        board.setSize(9);
         boardView = findViewById(R.id.boardView);
         boardView.setBoard(board);
+        boardView.buildPuzzles();
         boardView.addSelectionListener(this::squareSelected);
+
 
 
         toast("Select a square first, then a number");
@@ -103,6 +107,22 @@ public class MainActivity extends AppCompatActivity {
             case R.id.hardMenu:
                 hardClicked();
                 return true;
+            case R.id.action4x4menu:
+                board.setSize(4);
+                boardView.small = true;
+                boardView.big = false;
+                boardView.setBoard(board);
+                boardView.invalidate();
+                toast("Size changed to "+String.valueOf(board.size()));
+                return true;
+            case R.id.action9x9menu:
+                board.setSize(9);
+                boardView.setBoard(board);
+                boardView.big = true;
+                boardView.small = false;
+                boardView.invalidate();
+                toast("Size changed to "+String.valueOf(board.size()));
+                return true;
         }
         return true;
     }
@@ -117,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
         boardView.hardSelected = false;
 
         toast("Easy Puzzle");
+        boardView.newGame();
         boardView.invalidate();
 
 
@@ -129,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
         boardView.easySelected = false;
         boardView.mediumSelected = true;
         boardView.hardSelected = false;
-
+        boardView.newGame();
         toast("Medium Puzzle");
         boardView.invalidate();
 
@@ -142,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
         boardView.easySelected = false;
         boardView.mediumSelected = false;
         boardView.hardSelected = true;
+        boardView.newGame();
 
 
         toast("Hard Puzzle");
@@ -166,6 +188,8 @@ public class MainActivity extends AppCompatActivity {
             boardView.numberSelected = n;
             boardView.changeNumber = true;
 
+
+
             if(boardView.easySelected){
 
                 boardView.invalidate();
@@ -181,7 +205,6 @@ public class MainActivity extends AppCompatActivity {
                 boardView.invalidate();
                boardView.hard[boardView.yPosSelected][boardView.xPosSelected] = n;
             }
-            toast("Number clicked " + n);
         }
         else{
             boardView.changeNumber = false;
@@ -196,28 +219,26 @@ public class MainActivity extends AppCompatActivity {
      * @param x 0-based row index of the selected square.
      */
     private void squareSelected(int x, int y) {
-     boardView.xPosSelected = x;
-     boardView.yPosSelected = y;
-     boardView.markTheSquare = true;
-     boardView.invalidate();
+        boardView.xPosSelected = x;
+        boardView.yPosSelected = y;
+        boardView.markTheSquare = true;
+        boardView.invalidate();
 
-     if(boardView.easySelected && boardView.EASY_SUDOKU[y][x]==0){
-         boardView.squareTouched = true;
-         toast(String.format("Square selected: (%d, %d)", x, y));
-     }
-     else if(boardView.mediumSelected && boardView.MEDIUM_SUDOKU[y][x]==0){
-         boardView.squareTouched = true;
-         toast(String.format("Square selected: (%d, %d)", x, y));
-     }
-     else if(boardView.hardSelected && boardView.HARD_SUDOKU[y][x] == 0){
-         boardView.squareTouched = true;
-         toast(String.format("Square selected: (%d, %d)", x, y));
-     }
-     else{
-         boardView.squareTouched = false;
-         toast("Select another square");
-     }
+        if (boardView.easySelected && boardView.easy[y][x] == 0) {
+            boardView.squareTouched = true;
+
+        } else if (boardView.mediumSelected && boardView.medium[y][x] == 0) {
+            boardView.squareTouched = true;
+
+        } else if (boardView.hardSelected && boardView.hard[y][x] == 0) {
+            boardView.squareTouched = true;
+
+        } else {
+            boardView.squareTouched = false;
+            toast("Select another square");
+        }
     }
+
 
     /** Show a toast message. */
     protected void toast(String msg) {
