@@ -265,25 +265,7 @@ public class BoardView extends View {
 
 
     }
-    public void putNumberOnEasy(Canvas canvas){
-
-       // numbersInserted.add(yPosSelected,numbersInserted.add(xPosSelected));
-        canvas.drawText(String.valueOf(numberSelected), xPosSelected * (maxCoord() / boardSize) + 50, (yPosSelected + 1) * (maxCoord() / boardSize) - 30, easyPaint);
-        changeNumber = false;
-    }
-
-    public void putNumberOnMedium(Canvas canvas){
-
-
-       // insertedNumbers[yPosSelected].add(xPosSelected,numberSelected);
-        canvas.drawText(String.valueOf(numberSelected), xPosSelected * (maxCoord() / boardSize) + 50, (yPosSelected + 1) * (maxCoord() / boardSize) - 30, mediumPaint);
-        changeNumber = false;
-    }
-   
-
-
-
-    public void putNumberOnHard(Canvas canvas){
+    public void putNumber(Canvas canvas){
 
 
         //insertedNumbers[yPosSelected].add(xPosSelected,numberSelected);
@@ -314,7 +296,7 @@ public class BoardView extends View {
                 if (easy[y][x] == 0) {
                     canvas.drawText(" ", x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, linesPaint);
                     if(changeNumber){
-                        putNumberOnEasy(canvas);
+                        putNumber(canvas);
                     }
                 }
                 else {
@@ -346,7 +328,7 @@ public class BoardView extends View {
                 if (medium[y][x] == 0) {
                     canvas.drawText(" ", x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, linesPaint);
                     if(changeNumber){
-                        putNumberOnMedium(canvas);
+                        putNumber(canvas);
                     }
                 }
                 else{
@@ -371,7 +353,7 @@ public class BoardView extends View {
                 if (hard[y][x] == 0) {
                     canvas.drawText(" ", x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30,linesPaint);
                     if(changeNumber){
-                        putNumberOnHard(canvas);
+                        putNumber(canvas);
                     }
                 }
                 else {

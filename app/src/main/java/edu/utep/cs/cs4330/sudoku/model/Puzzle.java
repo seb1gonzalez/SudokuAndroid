@@ -3,7 +3,8 @@ package edu.utep.cs.cs4330.sudoku.model;
 import java.util.ArrayList;
 import java.lang.Math;
 
-import edu.utep.cs.cs4330.sudoku.BoardView;
+import edu.utep.cs.cs4330.sudoku.Solver;
+
 
 /**
  * Created by sebas on 3/25/2018.
@@ -19,8 +20,9 @@ public class Puzzle {
     ArrayList<ArrayList<Integer>> twoDArrayList = new ArrayList<ArrayList<Integer>>();
 
     private Board board = new Board();
+    private Solver solver = new Solver();
     private int puzzleSize = board.size();
-    private int[][] grid = new int[puzzleSize][puzzleSize];
+    public int[][] grid = new int[puzzleSize][puzzleSize];
 
     public  Puzzle(){
     }
@@ -28,32 +30,20 @@ public class Puzzle {
 
     public int[][] generatePuzzle(){
 
-        for (int y = 0; y < puzzleSize; y++) {
             for (int x = 0; x <puzzleSize; x++) {
-                grid[y][x]= (int)(Math.random()*(puzzleSize+1));
+                int num = (int)(Math.random()*(grid.length+1));
+                if(list.contains(num)){
+                    x--;
+                }
+                else{grid[(int)(Math.random()*(grid.length))][x]= num;
+                list.add(num);
+                }
                //Add random integers to the 2D array
             }
+            list.clear();
+            return grid;
         }
-       if(easyPuzzle){
-           for (int i = 0; i < 3; i++) {
-               makeHoles();
-           }
 
-        }
-        if(mediumPuzzle) {
-            for (int i = 0; i < 8; i++) {
-                makeHoles();
-            }
-        }
-        if (hardPuzzle) {
-            for (int i = 0; i < 11; i++) {
-                makeHoles();
-            }
-        }
-      return this.grid;
-
-
-    }
     private void makeHoles(){
         for (int i = 0; i < puzzleSize; i++) {
             grid[(int)(Math.random()*(puzzleSize))][(int)(Math.random()*(puzzleSize))] = 0;
