@@ -11,72 +11,46 @@ import edu.utep.cs.cs4330.sudoku.Solver;
  */
 
 public class Puzzle {
-    public boolean easyPuzzle = true;
-    public boolean mediumPuzzle = false;
-    public boolean hardPuzzle = false;
-
-
-    private ArrayList<Integer> list;
+    private ArrayList<Integer> list = new ArrayList<>();
     ArrayList<ArrayList<Integer>> twoDArrayList = new ArrayList<ArrayList<Integer>>();
 
     private Board board = new Board();
-    private Solver solver = new Solver();
     private int puzzleSize = board.size();
-    public int[][] grid = new int[puzzleSize][puzzleSize];
+    public int[][] grid;
+    public int[][] solvedPuzzle;
 
     public  Puzzle(){
     }
 
 
-    public int[][] generatePuzzle(){
+    public void generatePuzzle() {
+        grid = new int[puzzleSize][puzzleSize];
 
-            for (int x = 0; x <puzzleSize; x++) {
-                int num = (int)(Math.random()*(grid.length+1));
-                if(list.contains(num)){
-                    x--;
-                }
-                else{grid[(int)(Math.random()*(grid.length))][x]= num;
-                list.add(num);
-                }
-               //Add random integers to the 2D array
-            }
-            list.clear();
-            return grid;
-        }
+        for(int i = 0; i < grid.length;i++){
 
-    private void makeHoles(){
-        for (int i = 0; i < puzzleSize; i++) {
-            grid[(int)(Math.random()*(puzzleSize))][(int)(Math.random()*(puzzleSize))] = 0;
+            for(int j = 0; j < grid[i].length;j++){
 
-        }
-    }
-    private void checkX(){
-        for (int j = 0; j < board.size() ; j++) {
-            list.clear();
-            for (int i = 0; i < board.size(); i++) {
-
-                if (list.isEmpty()) {
-                    list.add( grid[j][i]);
-
-                } else {
-                    while (list.contains( grid[j][i])) { //false until currentElement is not in the list
-                        grid[j][i] = (int) (Math.random() * 10);
-                    }
-                    list.add( grid[j][i]);
-
-
-                }
+                grid[i][j] = 0;
             }
         }
 
+        for(int j = 1; j < grid.length;j++){
+            grid[(int)(Math.random()*grid.length)][j] = j;
+        }
+
+        Solver solver = new Solver();
+        solver.solveSudoku(grid);
     }
-    private void transpose(int[][]a){
-        for (int i = 0; i < a.length-1; i++) {
-            for (int j = i+1; j < a.length-1; j++) {
-                int temp = a[i][j];
-                a[i][j] = a[j][i];
-                a[j][i] = temp;
+    public void getGrid(){
+        for(int i = 0; i < grid.length;i++){
+
+            for(int j = 0; j < grid[i].length;j++){
+
+                solvedPuzzle[i][j] = grid[i][j];
             }
         }
     }
+
+
+
 }

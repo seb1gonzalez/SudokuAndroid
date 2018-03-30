@@ -25,6 +25,8 @@ import edu.utep.cs.cs4330.sudoku.model.Puzzle;
 public class BoardView extends View {
 
    Puzzle puzzle = new Puzzle();
+   PuzzleView puzzleView = new PuzzleView(this.getContext());
+
 
 
 
@@ -48,6 +50,7 @@ public class BoardView extends View {
     boolean markTheSquare = false;
     boolean big = true;
     boolean small = false;
+    boolean solutionRequested = false;
 
 
     /** To notify a square selection. */
@@ -89,9 +92,6 @@ public class BoardView extends View {
     /** Paint to draw the background of the grid. */
     private final Paint boardPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint linesPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint easyPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint mediumPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint hardPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint markPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
    // protected  ArrayList<ArrayList<Integer>> numbersInserted = new ArrayList<>();
@@ -127,9 +127,7 @@ public class BoardView extends View {
         boardSize = board.size;
     }
     public void buildPuzzles(){
-        easy=  puzzle.generatePuzzle();
-        medium = puzzle.generatePuzzle();
-        hard = puzzle.generatePuzzle();
+
     }
 
     /** Draw a 2-D graphics representation of the associated board. */
@@ -142,39 +140,35 @@ public class BoardView extends View {
 
 
             drawGrid(canvas);
-
-            if(markTheSquare){
-                markSelection(canvas);
+            if(solutionRequested){
+              //  solvePuzzles();
             }
 
+
+
              if(easySelected){// first puzzle to be displayed when the app starts
-                 puzzle.easyPuzzle = true;
-                 puzzle.mediumPuzzle = false;
-                 puzzle.hardPuzzle = false;
-                 easyPaint.setTextSize(90);easyPaint.setColor(Color.GREEN);
+                // easyPaint.setTextSize(90);easyPaint.setColor(Color.GREEN);
 
                  displayEasyPuzzle(canvas);
 
 
              }
              else if(mediumSelected){
-                 mediumPaint.setTextSize(90); mediumPaint.setColor(Color.WHITE);
-                 puzzle.easyPuzzle = false;
-                 puzzle.mediumPuzzle = true;
-                 puzzle.hardPuzzle = false;
+                // mediumPaint.setTextSize(90); mediumPaint.setColor(Color.WHITE);
+
                  displayMediumPuzzle(canvas);
 
 
              }
             else if(hardSelected){
-                 hardPaint.setTextSize(90);hardPaint.setColor(Color.BLUE);
-                 puzzle.easyPuzzle = false;
-                 puzzle.mediumPuzzle = false;
-                 puzzle.hardPuzzle = true;
+                // hardPaint.setTextSize(90);hardPaint.setColor(Color.BLUE);
                  displayHardPuzzle(canvas);
 
 
              }
+            if(markTheSquare){
+                markSelection(canvas);
+            }
 
         }
         canvas.translate(-transX, -transY);
@@ -269,7 +263,7 @@ public class BoardView extends View {
 
 
         //insertedNumbers[yPosSelected].add(xPosSelected,numberSelected);
-        canvas.drawText(String.valueOf(numberSelected), xPosSelected * (maxCoord() / boardSize) + 50, (yPosSelected + 1) * (maxCoord() / boardSize) - 30, hardPaint);
+        canvas.drawText(String.valueOf(numberSelected), xPosSelected * (maxCoord() / boardSize) + 50, (yPosSelected + 1) * (maxCoord() / boardSize) - 30, linesPaint);
         changeNumber = false;
 
     }
@@ -363,6 +357,7 @@ public class BoardView extends View {
             }
         }
     }
+
 
     /** Overridden here to detect tapping on the board and
      * to notify the selected square if exists. */

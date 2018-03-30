@@ -1,44 +1,31 @@
 package edu.utep.cs.cs4330.sudoku;
-
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-
-import edu.utep.cs.cs4330.sudoku.model.Board;
-import edu.utep.cs.cs4330.sudoku.model.Puzzle;
-
-/**
- * Created by sebas on 3/27/2018.
- */
-
-public class Solver {
-    private Board board = new Board();
-    private Puzzle puzzle = new Puzzle();
-    public void solveSudoku(char[][] board) {
+public class Solver{
+    public void solveSudoku(int[][] board) {
         solve(board);
     }
-    public boolean solve(char[][] board){
+    public boolean solve(int[][] board){
         for(int i=0; i<9; i++){
             for(int j=0; j<9; j++){
-                if(board[i][j]!='.')
+                if(board[i][j]!=0)
                     continue;
                 for(int k=1; k<=9; k++){
-                    board[i][j] = (char) (k+'0');
+                    board[i][j] = k;
                     if(isValid(board, i, j) && solve(board))
                         return true;
-                    board[i][j] = '.';
+                    board[i][j] = 0;
                 }
                 return false;
             }
         }
         return true;
     }
-    public boolean isValid(char[][] board, int i, int j){
-        HashSet<Character> set = new HashSet<Character>();
+    public boolean isValid(int[][] board, int i, int j){
+        HashSet<Integer> set = new HashSet<>();
         for(int k=0; k<9; k++){
             if(set.contains(board[i][k]))
                 return false;
-            if(board[i][k]!='.' ){
+            if(board[i][k]!=0){
                 set.add(board[i][k]);
             }
         }
@@ -46,7 +33,7 @@ public class Solver {
         for(int k=0; k<9; k++){
             if(set.contains(board[k][j]))
                 return false;
-            if(board[k][j]!='.' ){
+            if(board[k][j]!=0){
                 set.add(board[k][j]);
             }
         }
@@ -57,11 +44,37 @@ public class Solver {
                 int y=j/3*3+n;
                 if(set.contains(board[x][y]))
                     return false;
-                if(board[x][y]!='.'){
+                if(board[x][y]!=0){
                     set.add(board[x][y]);
                 }
             }
         }
         return true;
+    }
+    public static void main (String [] args){
+        int[][] a = new int[9][9];
+        for(int i = 0; i < a.length;i++){
+
+            for(int j = 0; j < a[i].length;j++){
+
+                a[i][j] = 0;
+            }
+        }
+
+        for(int j = 1; j < a.length;j++){
+            a[(int)(Math.random()*a.length)][j] = j;
+        }
+
+        Solver solver = new Solver();
+        solver.solveSudoku(a);
+        for(int i = 0; i < a.length;i++){
+
+            for(int j = 0; j < a[i].length;j++){
+
+                System.out.print("  "+a[i][j]);
+            }
+            System.out.println();
+        }
+
     }
 }
