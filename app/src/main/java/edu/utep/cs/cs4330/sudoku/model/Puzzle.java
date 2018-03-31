@@ -3,6 +3,7 @@ package edu.utep.cs.cs4330.sudoku.model;
 import java.util.ArrayList;
 import java.lang.Math;
 
+import edu.utep.cs.cs4330.sudoku.BoardView;
 import edu.utep.cs.cs4330.sudoku.Solver;
 
 
@@ -11,15 +12,18 @@ import edu.utep.cs.cs4330.sudoku.Solver;
  */
 
 public class Puzzle {
-    private ArrayList<Integer> list = new ArrayList<>();
-    ArrayList<ArrayList<Integer>> twoDArrayList = new ArrayList<ArrayList<Integer>>();
+
 
     private Board board = new Board();
-    private int puzzleSize = board.size();
+    public int puzzleSize = board.size();
     public int[][] grid;
-    public int[][] solvedPuzzle;
+    public int[][] solvedPuzzle; // full solved puzzle
+    public int[][] easy;
+    public int[][] medium;
+    public int[][] hard;
 
     public  Puzzle(){
+
     }
 
 
@@ -40,6 +44,7 @@ public class Puzzle {
 
         Solver solver = new Solver();
         solver.solveSudoku(grid);
+        getGrid();
     }
     public void getGrid(){
         for(int i = 0; i < grid.length;i++){
@@ -49,8 +54,53 @@ public class Puzzle {
                 solvedPuzzle[i][j] = grid[i][j];
             }
         }
+        if(board.easy){
+            for(int i = 0; i < grid.length;i++){
+
+                for(int j = 0; j < grid[i].length;j++){
+
+                    easy[i][j] = grid[i][j];
+                }
+            }
+            for (int i = 0; i < 4 ; i++) {
+                makeHoles();
+
+            }
+        }
+        if(board.medium){
+            for(int i = 0; i < grid.length;i++){
+
+                for(int j = 0; j < grid[i].length;j++){
+
+                    medium[i][j] = grid[i][j];
+                }
+            }
+            for (int i = 0; i < 8 ; i++) {
+                makeHoles();
+
+            }
+        }
+        if(board.hard){
+            for(int i = 0; i < grid.length;i++){
+
+                for(int j = 0; j < grid[i].length;j++){
+
+                    hard[i][j] = grid[i][j];
+                }
+            }
+            for (int i = 0; i < 10; i++) {
+                makeHoles();
+
+            }
+        }
+
     }
 
+    private void makeHoles() {
+        for (int i = 0; i < puzzleSize; i++) {
+            solvedPuzzle[(int) (Math.random() * (puzzleSize))][(int) (Math.random() * (puzzleSize))] = 0;
 
+        }
+    }
 
 }

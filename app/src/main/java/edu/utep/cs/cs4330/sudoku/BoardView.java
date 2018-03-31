@@ -25,7 +25,7 @@ import edu.utep.cs.cs4330.sudoku.model.Puzzle;
 public class BoardView extends View {
 
    Puzzle puzzle = new Puzzle();
-   PuzzleView puzzleView = new PuzzleView(this.getContext());
+
 
 
 
@@ -43,10 +43,6 @@ public class BoardView extends View {
     /** et to true when the user taps a number button*/
     boolean changeNumber = false;
 
-    /** set to true or false depending on current puzzle displayed*/
-    boolean easySelected =true;
-    boolean mediumSelected =false;
-    boolean hardSelected =false;
     boolean markTheSquare = false;
     boolean big = true;
     boolean small = false;
@@ -69,8 +65,7 @@ public class BoardView extends View {
     /** Number of squares in rows and columns.*/
     private int boardSize = board.size();
     int[][] easy=  new int[boardSize][boardSize];
-    int[][] medium = new int[boardSize][boardSize];
-    int[][] hard = new int[boardSize][boardSize];
+
 
 
 
@@ -127,6 +122,7 @@ public class BoardView extends View {
         boardSize = board.size;
     }
     public void buildPuzzles(){
+        puzzle.generatePuzzle();
 
     }
 
@@ -140,32 +136,10 @@ public class BoardView extends View {
 
 
             drawGrid(canvas);
+
             if(solutionRequested){
-              //  solvePuzzles();
+               solvePuzzles();
             }
-
-
-
-             if(easySelected){// first puzzle to be displayed when the app starts
-                // easyPaint.setTextSize(90);easyPaint.setColor(Color.GREEN);
-
-                 displayEasyPuzzle(canvas);
-
-
-             }
-             else if(mediumSelected){
-                // mediumPaint.setTextSize(90); mediumPaint.setColor(Color.WHITE);
-
-                 displayMediumPuzzle(canvas);
-
-
-             }
-            else if(hardSelected){
-                // hardPaint.setTextSize(90);hardPaint.setColor(Color.BLUE);
-                 displayHardPuzzle(canvas);
-
-
-             }
             if(markTheSquare){
                 markSelection(canvas);
             }
@@ -230,19 +204,12 @@ public class BoardView extends View {
     /** Copies a source 2D array and returns a new array with the source array contents */
 
 
+    private void solvePuzzles(){
 
+    }
     public void markSelection(Canvas canvas){
 
-        if(easySelected){
-            markPaint.setColor(Color.BLUE);
 
-        }
-        if(mediumSelected){
-            markPaint.setColor(Color.YELLOW);
-        }
-        if(hardSelected){
-            markPaint.setColor(Color.WHITE);
-        }
 
         if(big){
             markPaint.setTextAlign(Paint.Align.CENTER);
@@ -261,8 +228,6 @@ public class BoardView extends View {
     }
     public void putNumber(Canvas canvas){
 
-
-        //insertedNumbers[yPosSelected].add(xPosSelected,numberSelected);
         canvas.drawText(String.valueOf(numberSelected), xPosSelected * (maxCoord() / boardSize) + 50, (yPosSelected + 1) * (maxCoord() / boardSize) - 30, linesPaint);
         changeNumber = false;
 
@@ -275,7 +240,7 @@ public class BoardView extends View {
 
         }
     /** draws each element of the puzzle to the canvas and checks for zeros to mark as blank space. It also records the number taken as input*/
-    public void displayEasyPuzzle(Canvas canvas) {
+    public void displayThePuzzle(Canvas canvas) {
         if(big){
 
             linesPaint.setTextSize(90);
@@ -304,57 +269,6 @@ public class BoardView extends View {
                 }
             }
 
-        }
-    }
-    /** draws each element of the puzzle to the canvas and checks for zeros to mark as blank space. It also records the number taken as input*/
-    public void displayMediumPuzzle(Canvas canvas){
-        linesPaint.setColor(Color.GREEN);
-        if(big){
-
-            linesPaint.setTextSize(90);
-        }
-        if(small){
-
-            linesPaint.setTextSize(190);
-        }
-        for (int y = 0; y < medium.length; y++) {
-            for (int x = 0; x < medium.length; x++) {
-                if (medium[y][x] == 0) {
-                    canvas.drawText(" ", x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, linesPaint);
-                    if(changeNumber){
-                        putNumber(canvas);
-                    }
-                }
-                else{
-
-                    canvas.drawText(String.valueOf(medium[y][x]), x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, linesPaint);}
-            }
-        }
-    }
-    /** draws each element of the puzzle to the canvas and checks for zeros to mark as blank space. It also records the number taken as input*/
-    public void displayHardPuzzle(Canvas canvas){
-        if(big){
-
-            linesPaint.setTextSize(90);
-        }
-        if(small){
-
-            linesPaint.setTextSize(190);
-        }
-        linesPaint.setColor(Color.YELLOW);
-        for (int y = 0; y < hard.length; y++) {
-            for (int x = 0; x < hard.length; x++) {
-                if (hard[y][x] == 0) {
-                    canvas.drawText(" ", x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30,linesPaint);
-                    if(changeNumber){
-                        putNumber(canvas);
-                    }
-                }
-                else {
-
-                    canvas.drawText(String.valueOf(hard[y][x]), x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, linesPaint);
-                }
-            }
         }
     }
 

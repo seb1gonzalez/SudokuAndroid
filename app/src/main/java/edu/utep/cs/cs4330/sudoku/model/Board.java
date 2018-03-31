@@ -5,6 +5,9 @@ package edu.utep.cs.cs4330.sudoku.model;
  * An abstraction of Sudoku puzzle.
  */
 public class Board {
+    public boolean easy = false;
+    public boolean medium = false;
+    public boolean hard = false;
 
 
     /**

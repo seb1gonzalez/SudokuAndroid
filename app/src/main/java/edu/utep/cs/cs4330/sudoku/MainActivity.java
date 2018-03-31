@@ -134,9 +134,9 @@ public class MainActivity extends AppCompatActivity {
         boardView.changeNumber= false;
         boardView.squareTouched = false;
 
-        boardView.easySelected = true;
-        boardView.mediumSelected = false;
-        boardView.hardSelected = false;
+        board.easy = true;
+        board.medium = false;
+        board.hard= false;
 
         toast("Easy Puzzle");
         boardView.newGame();
@@ -149,9 +149,9 @@ public class MainActivity extends AppCompatActivity {
         boardView.changeNumber= false;
         boardView.squareTouched = false;
 
-        boardView.easySelected = false;
-        boardView.mediumSelected = true;
-        boardView.hardSelected = false;
+        board.easy = false;
+        board.medium = true;
+        board.hard= false;
         boardView.newGame();
         toast("Medium Puzzle");
         boardView.invalidate();
@@ -162,14 +162,14 @@ public class MainActivity extends AppCompatActivity {
         boardView.changeNumber= false;
         boardView.squareTouched = false;
 
-        boardView.easySelected = false;
-        boardView.mediumSelected = false;
-        boardView.hardSelected = true;
+        board.easy = false;
+        board.medium = false;
+        board.hard= true;
         boardView.newGame();
-
+        boardView.invalidate();
 
         toast("Hard Puzzle");
-        boardView.invalidate();
+
     }
     /** Callback to be invoked when the new button is tapped. */
     public void newClicked(View view) {
@@ -189,24 +189,6 @@ public class MainActivity extends AppCompatActivity {
         if(boardView.squareTouched) {
             boardView.numberSelected = n;
             boardView.changeNumber = true;
-
-
-
-            if(boardView.easySelected){
-
-                boardView.invalidate();
-                boardView.easy[boardView.yPosSelected][boardView.xPosSelected] = n;
-            }
-            if(boardView.mediumSelected){
-
-                boardView.invalidate();
-                boardView.medium[boardView.yPosSelected][boardView.xPosSelected] = n;
-            }
-            if(boardView.hardSelected){
-
-                boardView.invalidate();
-               boardView.hard[boardView.yPosSelected][boardView.xPosSelected] = n;
-            }
         }
         else{
             boardView.changeNumber = false;
@@ -223,22 +205,13 @@ public class MainActivity extends AppCompatActivity {
     private void squareSelected(int x, int y) {
         boardView.xPosSelected = x;
         boardView.yPosSelected = y;
+        if(puzzle.grid[y][x] != 0) {
+            toast("Select another square");
+            return;
+        }
         boardView.markTheSquare = true;
         boardView.invalidate();
 
-        if (boardView.easySelected && boardView.easy[y][x] == 0) {
-            boardView.squareTouched = true;
-
-        } else if (boardView.mediumSelected && boardView.medium[y][x] == 0) {
-            boardView.squareTouched = true;
-
-        } else if (boardView.hardSelected && boardView.hard[y][x] == 0) {
-            boardView.squareTouched = true;
-
-        } else {
-            boardView.squareTouched = false;
-            toast("Select another square");
-        }
     }
 
 

@@ -24,7 +24,7 @@ public class PuzzleView extends View{
     private int puzzleSize = board.size();
     boolean squareTouched = false;
     Paint solutionPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
+    Paint numbersPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     /** set to true or false depending on current puzzle displayed*/
 
@@ -63,16 +63,66 @@ public class PuzzleView extends View{
         super.onDraw(canvas);
         if(solutionRequested){
             displaySolution(canvas);
+            solutionRequested = false;
+
+        }
+        if(board.easy){
+            numbersPaint.setColor(Color.WHITE);
+            for (int y = 0; y < puzzleSize; y++) {
+                for (int x = 0; x <puzzleSize; x++) {
+                    if(puzzle.easy[y][x] == 0){
+                        canvas.drawText(" ", x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, numbersPaint);
+                    }
+                    else {
+                        canvas.drawText(String.valueOf(puzzle.easy[y][x]), x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, numbersPaint);
+                    }
+                }
+            }
+
+        }
+        if(board.medium){
+            numbersPaint.setColor(Color.GREEN);
+            for (int y = 0; y < puzzleSize; y++) {
+                for (int x = 0; x <puzzleSize; x++) {
+                    if(puzzle.medium[y][x] == 0){
+                        canvas.drawText(" ", x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, numbersPaint);
+                    }
+                    else {
+                        canvas.drawText(String.valueOf(puzzle.medium[y][x]), x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, numbersPaint);
+                    }
+                }
+            }
+
+        }
+        if(board.hard){
+            numbersPaint.setColor(Color.RED);
+            for (int y = 0; y < puzzleSize; y++) {
+                for (int x = 0; x <puzzleSize; x++) {
+
+                    if(puzzle.hard[y][x] == 0){
+                        canvas.drawText(" ", x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, numbersPaint);
+                    }
+                    else {
+                        canvas.drawText(String.valueOf(puzzle.hard[y][x]), x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, numbersPaint);
+                    }
+                }
+            }
+
         }
 
     }
-    private void makeHoles() {
-        for (int i = 0; i < puzzleSize; i++) {
-            puzzle.grid[(int) (Math.random() * (puzzleSize))][(int) (Math.random() * (puzzleSize))] = 0;
+    private void getGrid(){
 
+        for (int y = 0; y < puzzleSize; y++) {
+            for (int x = 0; x < puzzleSize; x++) {
+                puzzleToDisplay[y][x] = puzzle.solvedPuzzle[y][x];
+            }
         }
+
     }
+
     public void displaySolution(Canvas canvas){
+        getGrid();
         if(big){
 
             solutionPaint.setTextSize(90);
@@ -81,11 +131,11 @@ public class PuzzleView extends View{
 
             solutionPaint.setTextSize(190);
         }
-        solutionPaint.setColor(Color.CYAN);
-        for (int y = 0; y < puzzleSize; y++) {
-            for (int x = 0; x < puzzleToDisplay.length; x++) {
 
-                    canvas.drawText(String.valueOf(puzzleToDisplay[y][x]), x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, solutionPaint);
+        for (int y = 0; y < puzzleSize; y++) {
+            for (int x = 0; x <puzzleSize; x++) {
+                solutionPaint.setColor(Color.CYAN);
+                canvas.drawText(String.valueOf(puzzleToDisplay[y][x]), x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, solutionPaint);
                 }
             }
         }
