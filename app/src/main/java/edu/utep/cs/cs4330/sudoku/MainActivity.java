@@ -9,6 +9,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -40,7 +41,8 @@ import edu.utep.cs.cs4330.sudoku.model.Board;
  */
 public class MainActivity extends AppCompatActivity {
 
-    private Board board;
+    private static Board board;
+    private Button solveButton;
 
 
 
@@ -69,20 +71,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        board = new Board();
-        board.easy = true;
-        board.big = true;
-        board.level =1;
-        board.setSize(9);
-        board.setGrid();
         boardView = findViewById(R.id.boardView);
-        boardView.setBoard(board);
-        board.makeBooleanArray();
-        boardView.squareTouched = false;
-        boardView.addSelectionListener(this::squareSelected);
-
-
-        toast("Select a square first, then a number");
+        solveButton = findViewById(R.id.solve_Button);
 
         numberButtons = new ArrayList<>(numberIds.length);
         for (int i = 0; i < numberIds.length; i++) {
@@ -92,16 +82,31 @@ public class MainActivity extends AppCompatActivity {
             numberButtons.add(button);
             setButtonWidth(button);
         }
+
+        boardView.addSelectionListener(this::squareSelected);
+        board = new Board();
+
+        boardView.buildPuzzles();
+        boardView.big = true;
+
+        board.level = 1;
+        board.size = 9;
+        board.sqrt = (int) Math.sqrt(board.size);
+        board.setGrid();
+        boardView.setBoard(board);
+
+
+
+
+
+        toast("Select a square first, then a number");
+
+
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.action_Solve:
-
-                boardView.invalidate();
-                toast("Puzzle solved");
-                return true;
             case R.id.easyMenu:
                 easyClicked();
                 return true;
@@ -112,23 +117,36 @@ public class MainActivity extends AppCompatActivity {
                 hardClicked();
                 return true;
             case R.id.action4x4menu:
-                board.setSize(4);
-                board.size = 4;
-                board.small = true;
-                board.big = false;
-                boardView.setBoard(board);
-                boardView.invalidate();
-                toast("Size changed to "+String.valueOf(board.size()));
-                return true;
+                if(boardView.small == true){
+                    toast("Grid is already of size 4 x 4");
+                    return  true;
+
+                }
+                else {
+                    board.setSize(4);
+                    boardView.small = true;
+                    boardView.big = false;
+                    boardView.setBoard(board);
+                    boardView.invalidate();
+                    toast("Size changed to " + String.valueOf(board.size()));
+                    return true;
+                }
             case R.id.action9x9menu:
-                board.setSize(9);
-                board.size = 9;
-                boardView.setBoard(board);
-                board.big = true;
-                board.small = false;
-                boardView.invalidate();
-                toast("Size changed to "+String.valueOf(board.size()));
-                return true;
+                if(boardView.big== true){
+                    toast("Grid is already of size 9 x 9");
+                    return  true;
+                }
+                else {
+                    board.setSize(9);
+                    board.size = 9;
+                    boardView.big = true;
+                    boardView.small = false;
+                    boardView.setBoard(board);
+
+                    boardView.invalidate();
+                    toast("Size changed to " + String.valueOf(board.size()));
+                    return true;
+                }
         }
         return true;
     }
@@ -212,11 +230,14 @@ public class MainActivity extends AppCompatActivity {
 
         }
         for(int i = 0; i < board.size(); i++){
-           numberButtons.get(i).setEnabled(board.possible(x,y)[i]);
+          numberButtons.get(i).setEnabled(board.possible(x,y)[i]);
         }
         if(board.size() == 4){
-            for(int i = 4; i<9; i++){
+            for(int i = 5; i < 10; i++){
                 numberButtons.get(i).setEnabled(false);
+            }
+            for(int i = 0; i < 5; i++){
+                numberButtons.get(i).setEnabled(true);
             }
         }
         boardView.markTheSquare = true;
@@ -240,5 +261,11 @@ public class MainActivity extends AppCompatActivity {
         ViewGroup.LayoutParams params = view.getLayoutParams();
         params.width = buttonWidth;
         view.setLayoutParams(params);
+    }
+
+    public void solveSudoku(View view) {
+        boardView.solutionRequested = true;
+        boardView.invalidate();
+        toast("Puzzle solved");
     }
 }

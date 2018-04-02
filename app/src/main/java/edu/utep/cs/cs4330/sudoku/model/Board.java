@@ -12,16 +12,14 @@ import edu.utep.cs.cs4330.sudoku.*;
  * An abstraction of Sudoku puzzle.
  */
 public class Board {
-    public boolean easy = false;
-    public boolean big = true;
-    public boolean small = false;
-
+    public boolean big;
+    public boolean small;
     public int size = 9;
     public int level = 1;
     public int[][] grid = new int[size][size];
-    public int sqrt = (int) Math.sqrt(size);
+    public int sqrt;
     static Solver solver = new Solver();
-    public boolean[][] booleans = new boolean[size][size];
+    public static  boolean[][] booleans;
 
 
     /**
@@ -32,24 +30,12 @@ public class Board {
     public void setSize(int size) {
         this.size = size;
     }
-    public void makeBooleanArray(){
-
-        for(int i = 0; i <sqrt; i++){
-            for(int j = 0; j<sqrt; j++){
-                if(grid[i][j] == 0){
-                    booleans[i][j] = true;
-
-                }
-                else{
-                    booleans[i][j] = false;
-
-                }
-            }
-        }
-    }
 
     public void setGrid(){
-        size = size();
+        if(big){setSize(9);}
+        if(small){setSize(4);}
+        sqrt = (int) Math.sqrt(size);
+
 
         Random r = new Random();
         int n;
@@ -109,7 +95,7 @@ public class Board {
             }
         }
 
-        for(int i = size*size; i >= cells; i--){
+        for(int i = (size*size) ; i >= cells; i--){
             do{
                 x = r.nextInt(size);
                 y = r.nextInt(size);
@@ -118,6 +104,8 @@ public class Board {
         }
     }
     public boolean[] possible(int x, int y){
+
+        sqrt = (int) Math.sqrt(size);
         boolean[] possible = new boolean[size+1];
 
         for(int i=0; i<=size; i++){

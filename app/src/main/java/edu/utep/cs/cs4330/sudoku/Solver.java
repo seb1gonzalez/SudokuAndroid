@@ -10,7 +10,7 @@ public class Solver {
 
 
     public boolean[] possible(int[][] copy, int x, int y) {
-        board.size = board.size();
+
         boolean[] possible = new boolean[board.size + 1];
 
         for (int i = 0; i <= board.size; i++) {
@@ -39,7 +39,6 @@ public class Solver {
     }
 
     public boolean solveSudoku(int[][] copy) {
-        board.size = board.size();
         int x = -1;
         int y = -1;
 

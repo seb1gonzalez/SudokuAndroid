@@ -3,12 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="edu.utep.cs.cs4330.sudoku.MainActivity">
     <item
-        android:id="@+id/action_Solve"
-        android:layout_height="wrap_content"
-        android:orderInCategory="100"
-        android:title="Solve"
-        app:showAsAction="never"/>
-    <item
         android:id="@+id/action_Menu"
         android:layout_height="wrap_content"
         android:orderInCategory="100"
