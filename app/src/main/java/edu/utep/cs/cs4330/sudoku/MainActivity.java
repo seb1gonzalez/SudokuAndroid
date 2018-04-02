@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private Board board;
     private Puzzle puzzle;
 
+
     private BoardView boardView;
     /**Buttons to represent levels of difficulty*/
 
@@ -72,12 +73,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         board = new Board();
+        puzzle = new Puzzle();
         board.setSize(9);
+        board.level = 1;
+        puzzle.generatePuzzle();
         boardView = findViewById(R.id.boardView);
         boardView.setBoard(board);
         boardView.buildPuzzles();
         boardView.addSelectionListener(this::squareSelected);
-
 
 
         toast("Select a square first, then a number");
@@ -133,11 +136,7 @@ public class MainActivity extends AppCompatActivity {
     public void easyClicked(){
         boardView.changeNumber= false;
         boardView.squareTouched = false;
-
-        board.easy = true;
-        board.medium = false;
-        board.hard= false;
-
+        board.level = 1;
         toast("Easy Puzzle");
         boardView.newGame();
         boardView.invalidate();
@@ -148,10 +147,7 @@ public class MainActivity extends AppCompatActivity {
     public void mediumClicked(){
         boardView.changeNumber= false;
         boardView.squareTouched = false;
-
-        board.easy = false;
-        board.medium = true;
-        board.hard= false;
+        board.level = 2;
         boardView.newGame();
         toast("Medium Puzzle");
         boardView.invalidate();
@@ -161,10 +157,7 @@ public class MainActivity extends AppCompatActivity {
     public void hardClicked(){
         boardView.changeNumber= false;
         boardView.squareTouched = false;
-
-        board.easy = false;
-        board.medium = false;
-        board.hard= true;
+        board.level = 3;
         boardView.newGame();
         boardView.invalidate();
 
@@ -205,9 +198,13 @@ public class MainActivity extends AppCompatActivity {
     private void squareSelected(int x, int y) {
         boardView.xPosSelected = x;
         boardView.yPosSelected = y;
-        if(puzzle.grid[y][x] != 0) {
-            toast("Select another square");
-            return;
+        for(int i = 0; i < board.size(); i++){
+            numberButtons.get(i).setEnabled(board.possible(x,y)[i]);
+        }
+        if(board.size() == 4){
+            for(int i = 4; i<9; i++){
+                numberButtons.get(i).setEnabled(false);
+            }
         }
         boardView.markTheSquare = true;
         boardView.invalidate();

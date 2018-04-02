@@ -24,7 +24,8 @@ import edu.utep.cs.cs4330.sudoku.model.Puzzle;
  */
 public class BoardView extends View {
 
-   Puzzle puzzle = new Puzzle();
+   private Puzzle puzzle = new Puzzle();
+   private Solver solver = new Solver();
 
 
 
@@ -205,7 +206,8 @@ public class BoardView extends View {
 
 
     private void solvePuzzles(){
-
+        solver.solveSudoku(board.grid);
+        invalidate();
     }
     public void markSelection(Canvas canvas){
 
@@ -239,38 +241,6 @@ public class BoardView extends View {
         newGameRequested=false;
 
         }
-    /** draws each element of the puzzle to the canvas and checks for zeros to mark as blank space. It also records the number taken as input*/
-    public void displayThePuzzle(Canvas canvas) {
-        if(big){
-
-            linesPaint.setTextSize(90);
-        }
-        if(small){
-
-            linesPaint.setTextSize(190);
-        }
-        linesPaint.setColor(Color.WHITE);
-        for (int y = 0; y < easy.length; y++) {
-            for (int x = 0; x < easy.length; x++) {
-                if (easy[y][x] == 0) {
-                    canvas.drawText(" ", x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, linesPaint);
-                    if(changeNumber){
-                        putNumber(canvas);
-                    }
-                }
-                else {
-                    if(big){
-                        canvas.drawText(String.valueOf(easy[y][x]), x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, linesPaint);
-                     }
-                     if(small){
-                        canvas.drawText(String.valueOf(easy[y][x]), x * (maxCoord() / boardSize) + 140, (y + 1) * (maxCoord() / boardSize) - 70, linesPaint);
-
-                     }
-                }
-            }
-
-        }
-    }
 
 
     /** Overridden here to detect tapping on the board and
