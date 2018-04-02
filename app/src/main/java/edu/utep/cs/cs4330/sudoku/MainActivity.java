@@ -70,14 +70,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         board = new Board();
-
+        board.easy = true;
+        board.big = true;
         board.level =1;
         board.setSize(9);
         board.setGrid();
         boardView = findViewById(R.id.boardView);
         boardView.setBoard(board);
-        boardView.buildPuzzles();
-        boardView.newGame();
+        boardView.squareTouched = false;
         boardView.addSelectionListener(this::squareSelected);
 
 
@@ -112,8 +112,8 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.action4x4menu:
                 board.setSize(4);
-                boardView.small = true;
-                boardView.big = false;
+                board.small = true;
+                board.big = false;
                 boardView.setBoard(board);
                 boardView.invalidate();
                 toast("Size changed to "+String.valueOf(board.size()));
@@ -121,8 +121,8 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action9x9menu:
                 board.setSize(9);
                 boardView.setBoard(board);
-                boardView.big = true;
-                boardView.small = false;
+                board.big = true;
+                board.small = false;
                 boardView.invalidate();
                 toast("Size changed to "+String.valueOf(board.size()));
                 return true;
@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
         boardView.xPosSelected = x;
         boardView.yPosSelected = y;
         for(int i = 0; i < board.size(); i++){
-           // numberButtons.get(i).setEnabled(board.possible(x,y)[i]);
+           numberButtons.get(i).setEnabled(board.possible(x,y)[i]);
         }
         if(board.size() == 4){
             for(int i = 4; i<9; i++){

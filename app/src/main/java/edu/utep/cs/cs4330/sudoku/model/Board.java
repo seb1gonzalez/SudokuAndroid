@@ -15,11 +15,14 @@ public class Board {
     public boolean easy = false;
     public boolean medium = false;
     public boolean hard = false;
+    public boolean big = true;
+    public boolean small = false;
 
     public int size = 9;
     public int level = 1;
     public int[][] grid = new int[size][size];
     public int sqrt = (int) Math.sqrt(size);
+    static Solver solver = new Solver();
 
 
     /**
@@ -44,7 +47,7 @@ public class Board {
 //    }
 
     public void setGrid(){
-Solver solver = new Solver();
+
 
         Random r = new Random();
         int n;

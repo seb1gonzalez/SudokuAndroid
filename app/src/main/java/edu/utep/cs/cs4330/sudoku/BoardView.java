@@ -127,12 +127,7 @@ public class BoardView extends View {
         super.onDraw(canvas);
 
         canvas.translate(transX, transY);
-        getGrid();
         if (board != null) {
-            drawPuzzles(canvas);
-            if(changeNumber){
-                putNumber(canvas);
-            }
 
 
             drawGrid(canvas);
@@ -144,6 +139,47 @@ public class BoardView extends View {
                solvePuzzles();
             }
 
+
+
+            if(board.level == 1){
+                numbersPaint.setColor(Color.WHITE);
+                markPaint.setColor(Color.CYAN);
+            }
+            if(board.level == 2){
+                numbersPaint.setColor(Color.GREEN);
+                markPaint.setColor(Color.WHITE);
+
+            }
+            if(board.level == 3){
+                numbersPaint.setColor(Color.RED);
+                markPaint.setColor(Color.YELLOW);
+
+            }
+            if(board.big){
+
+                numbersPaint.setTextSize(90);
+            }
+            if(board.small){
+
+                numbersPaint.setTextSize(190);
+            }
+            if(solutionRequested){
+                displaySolution(canvas);
+                solutionRequested = false;
+                return;
+            }
+            for (int y = 0; y < boardSize; y++) {
+                for (int x = 0; x < boardSize; x++) {
+                    if (board.grid[y][x] == 0) {
+                        canvas.drawText(" ", x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, numbersPaint);
+                        if(changeNumber){
+                            putNumber(canvas);
+                        }
+                    } else {
+                        canvas.drawText(String.valueOf(board.grid[y][x]), x * (maxCoord() / boardSize) + 40, (y + 1) * (maxCoord() / boardSize) - 30, numbersPaint);
+                    }
+                }
+            }
             if(markTheSquare){
                 markSelection(canvas);
             }
@@ -218,13 +254,13 @@ public class BoardView extends View {
         if(big){
             markPaint.setTextAlign(Paint.Align.CENTER);
             markPaint.setTextSize(90);
-            canvas.drawText("|||", xPosSelected * (maxCoord() / boardSize) + 50, (yPosSelected + 1) * (maxCoord() / boardSize) - 30,markPaint);
+            canvas.drawText("||||", xPosSelected * (maxCoord() / boardSize) + 50, (yPosSelected + 1) * (maxCoord() / boardSize) - 30,markPaint);
 
         }
         if(small){
             markPaint.setTextAlign(Paint.Align.RIGHT);
             markPaint.setTextSize(190);
-            canvas.drawText("|||", xPosSelected * (maxCoord() / boardSize) + 190, (yPosSelected +1) * (maxCoord() / boardSize)-80,markPaint);
+            canvas.drawText("||||", xPosSelected * (maxCoord() / boardSize) + 190, (yPosSelected +1) * (maxCoord() / boardSize)-80,markPaint);
 
         }
 
@@ -244,7 +280,7 @@ public class BoardView extends View {
 
         }
     public void drawPuzzles(Canvas canvas) {
-        board.setGrid();
+
         if (board.easy) {
             numbersPaint.setColor(Color.WHITE);
         }
