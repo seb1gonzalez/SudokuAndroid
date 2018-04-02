@@ -51,6 +51,7 @@ public class BoardView extends View {
     boolean solutionRequested = false;
 
 
+
     /** To notify a square selection. */
     public interface SelectionListener {
 
@@ -64,9 +65,9 @@ public class BoardView extends View {
     private final List<SelectionListener> listeners = new ArrayList<>();
     /** Board to be displayed by this view. */
     private Board board = new Board();
-    private int[][] grid = new int[board.size][board.size];
     /** Number of squares in rows and columns.*/
     private int boardSize = board.size();
+    private int[][] input = new int[boardSize][boardSize];
 
     /** Width and height of each square. This is automatically calculated
      * this view's dimension is changed. */
@@ -84,6 +85,7 @@ public class BoardView extends View {
     private final Paint markPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     Paint solutionPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     Paint numbersPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    Paint inputPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
    // protected  ArrayList<ArrayList<Integer>> numbersInserted = new ArrayList<>();
 
@@ -128,25 +130,25 @@ public class BoardView extends View {
 
         canvas.translate(transX, transY);
         if (board != null) {
+            boardSize = board.size();
 
 
             drawGrid(canvas);
             if(newGameRequested){
                 newGame();
+                resetInputs();
             }
 
             if(solutionRequested){
-               solvePuzzles();
+              displaySolution(canvas);
             }
-
-
 
             if(board.level == 1){
                 numbersPaint.setColor(Color.WHITE);
                 markPaint.setColor(Color.CYAN);
             }
             if(board.level == 2){
-                numbersPaint.setColor(Color.GREEN);
+                numbersPaint.setColor(Color.MAGENTA);
                 markPaint.setColor(Color.WHITE);
 
             }
@@ -166,17 +168,21 @@ public class BoardView extends View {
             if(solutionRequested){
                 displaySolution(canvas);
                 solutionRequested = false;
-                return;
             }
             for (int y = 0; y < boardSize; y++) {
                 for (int x = 0; x < boardSize; x++) {
-                    if (board.grid[y][x] == 0) {
+                    if (board.grid[y][x] == 0){
                         canvas.drawText(" ", x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, numbersPaint);
                         if(changeNumber){
-                            putNumber(canvas);
-                        }
+                            putNumber();
+                            displayInputs(canvas);
+                            changeNumber = false;
+                            }
+
                     } else {
                         canvas.drawText(String.valueOf(board.grid[y][x]), x * (maxCoord() / boardSize) + 40, (y + 1) * (maxCoord() / boardSize) - 30, numbersPaint);
+                        displayInputs(canvas);
+
                     }
                 }
             }
@@ -196,8 +202,23 @@ public class BoardView extends View {
 
         linesPaint.setStrokeWidth(9);
         linesPaint.setColor(Color.WHITE);
-        if(big) {
-            boardSize=9;
+        if(small){
+            boardSize = 4;
+            linesPaint.setStrokeWidth(9);
+            canvas.drawLine(maxCoord / 2, 0, maxCoord / 2, maxCoord, linesPaint);
+            canvas.drawLine(0, maxCoord / 2, maxCoord, maxCoord / 2, linesPaint);
+            linesPaint.setStrokeWidth(2);
+
+            for (int i = 1; i <boardSize; i++) {
+                canvas.drawLine(0, i* maxCoord / boardSize, maxCoord, i*maxCoord / boardSize, linesPaint);
+            }
+            for (int i = 1; i <boardSize; i++) {
+                canvas.drawLine(i* maxCoord / boardSize,0 ,i*maxCoord / boardSize,maxCoord, linesPaint);
+            }
+
+        }
+       else if(big) {
+            boardSize = 9;
             //HORIZONTAL PRIMARY LINES
             canvas.drawLine(maxCoord / 3, 0, maxCoord / 3, maxCoord, linesPaint);
             canvas.drawLine(2 * maxCoord / 3, 0, 2 * maxCoord / 3, maxCoord, linesPaint);
@@ -219,37 +240,16 @@ public class BoardView extends View {
                 canvas.drawLine(0, i * maxCoord / boardSize, maxCoord, i * maxCoord / boardSize, linesPaint);
             }
         }
-        if(small){
-            boardSize = 4;
 
-            linesPaint.setStrokeWidth(9);
-            canvas.drawLine(maxCoord / 2, 0, maxCoord / 2, maxCoord, linesPaint);
-            canvas.drawLine(0, maxCoord / 2, maxCoord, maxCoord / 2, linesPaint);
-            linesPaint.setStrokeWidth(2);
-
-            for (int i = 1; i <boardSize; i++) {
-                canvas.drawLine(0, i* maxCoord / boardSize, maxCoord, i*maxCoord / boardSize, linesPaint);
-            }
-            for (int i = 1; i <boardSize; i++) {
-                canvas.drawLine(i* maxCoord / boardSize,0 ,i*maxCoord / boardSize,maxCoord, linesPaint);
-            }
-
-        }
 
         linesPaint.setTextSize(90);
         linesPaint.setTextAlign(Paint.Align.CENTER);
 
     }
 
-    /** Copies a source 2D array and returns a new array with the source array contents */
 
-
-    private void solvePuzzles(){
-        solver.solveSudoku(board.grid);
-    }
     public void markSelection(Canvas canvas){
-
-
+        boardSize = board.size();
 
         if(big){
             markPaint.setTextAlign(Paint.Align.CENTER);
@@ -266,57 +266,42 @@ public class BoardView extends View {
 
 
     }
-    public void putNumber(Canvas canvas){
+    public void putNumber(){
 
-        canvas.drawText(String.valueOf(numberSelected), xPosSelected * (maxCoord() / boardSize) + 50, (yPosSelected + 1) * (maxCoord() / boardSize) - 30, linesPaint);
-        changeNumber = false;
+        input[yPosSelected][xPosSelected] = numberSelected;
+
+
 
     }
     /**sets newGameRequested boolean to TRUE and overwrites ALL copies of original puzzles with the original puzzle version */
     public void newGame() {
-        newGameRequested =true;
+        newGameRequested = true;
+
         buildPuzzles();
-        newGameRequested=false;
+        resetInputs();
+        newGameRequested = false;
 
-        }
-    public void drawPuzzles(Canvas canvas) {
-
-        if (board.easy) {
-            numbersPaint.setColor(Color.WHITE);
-        }
-        if (board.medium) {
-            numbersPaint.setColor(Color.GREEN);
-
-        }
-        if (board.hard) {
-            numbersPaint.setColor(Color.RED);
-
-        }
-        if (solutionRequested) {
-            displaySolution(canvas);
-            solutionRequested = false;
-        }
+    }
+    protected void resetInputs(){
         for (int y = 0; y < boardSize; y++) {
             for (int x = 0; x < boardSize; x++) {
-                if (board.grid[y][x] == 0) {
-                    canvas.drawText(" ", x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, numbersPaint);
-                } else {
-                    canvas.drawText(String.valueOf(board.grid[y][x]), x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, numbersPaint);
-                }
+                input[y][x] = 0;
             }
         }
     }
+    private void displayInputs(Canvas canvas){
+        boardSize = board.size();
+        inputPaint.setTextSize(95);
+        inputPaint.setColor(Color.CYAN);
+        for (int y = 0; y < boardSize; y++) {
+            for (int x = 0; x < boardSize; x++) {
+                if(input[y][x] != 0){
+                    canvas.drawText(String.valueOf(input[y][x]), x * (maxCoord() / boardSize) + 40, (y + 1) * (maxCoord() / boardSize) - 30, inputPaint);
+                }
 
-    private void getGrid() {
-        board.setGrid();
-        for (int i = 0; i <board.size ; i++) {
-            for (int j = 0; j < board.size ; j++) {
-                grid[i][j] = board.grid[i][j];
 
             }
-
         }
-
     }
 
     public void displaySolution(Canvas canvas) {

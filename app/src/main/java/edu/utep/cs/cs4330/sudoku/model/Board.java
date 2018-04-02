@@ -13,8 +13,6 @@ import edu.utep.cs.cs4330.sudoku.*;
  */
 public class Board {
     public boolean easy = false;
-    public boolean medium = false;
-    public boolean hard = false;
     public boolean big = true;
     public boolean small = false;
 
@@ -23,6 +21,7 @@ public class Board {
     public int[][] grid = new int[size][size];
     public int sqrt = (int) Math.sqrt(size);
     static Solver solver = new Solver();
+    public boolean[][] booleans = new boolean[size][size];
 
 
     /**
@@ -33,21 +32,24 @@ public class Board {
     public void setSize(int size) {
         this.size = size;
     }
-//    public void setGrid(){
-//        Solver solver = new Solver();
-//
-//
-//        for(int j = 0; j < size;j++){
-//            grid[j][j] = j;
-//        }
-//
-//
-//        solver.solveSudoku(grid);
-//
-//    }
+    public void makeBooleanArray(){
+
+        for(int i = 0; i <sqrt; i++){
+            for(int j = 0; j<sqrt; j++){
+                if(grid[i][j] == 0){
+                    booleans[i][j] = true;
+
+                }
+                else{
+                    booleans[i][j] = false;
+
+                }
+            }
+        }
+    }
 
     public void setGrid(){
-
+        size = size();
 
         Random r = new Random();
         int n;

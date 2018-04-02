@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         board.setGrid();
         boardView = findViewById(R.id.boardView);
         boardView.setBoard(board);
+        board.makeBooleanArray();
         boardView.squareTouched = false;
         boardView.addSelectionListener(this::squareSelected);
 
@@ -112,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.action4x4menu:
                 board.setSize(4);
+                board.size = 4;
                 board.small = true;
                 board.big = false;
                 boardView.setBoard(board);
@@ -120,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.action9x9menu:
                 board.setSize(9);
+                board.size = 9;
                 boardView.setBoard(board);
                 board.big = true;
                 board.small = false;
@@ -132,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**changes booleans in BoardView and re-draws canvas*/
     public void easyClicked(){
+        boardView.resetInputs();
         board.level = 1;
         boardView.changeNumber= false;
         boardView.squareTouched = false;
@@ -143,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
     }
     /**changes booleans in BoardView and re-draws canvas*/
     public void mediumClicked(){
+        boardView.resetInputs();
         board.level=2;
         boardView.changeNumber= false;
         boardView.squareTouched = false;
@@ -154,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
     }
     /**changes booleans in BoardView and re-draws canvas*/
     public void hardClicked(){
+        boardView.resetInputs();
         board.level = 3;
         boardView.changeNumber= false;
         boardView.squareTouched = false;
@@ -165,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
     }
     /** Callback to be invoked when the new button is tapped. */
     public void newClicked(View view) {
+        boardView.resetInputs();
         board.setGrid();
         boardView.invalidate();
         toast("New game started");
@@ -178,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void numberClicked(int n) {
 
-        if(boardView.squareTouched) {
+        if(boardView.markTheSquare) {
             boardView.numberSelected = n;
             boardView.changeNumber = true;
             boardView.invalidate();
@@ -198,6 +205,12 @@ public class MainActivity extends AppCompatActivity {
     private void squareSelected(int x, int y) {
         boardView.xPosSelected = x;
         boardView.yPosSelected = y;
+        if(board.grid[y][x] != 0){
+            toast("Pick another Square");
+            boardView.markTheSquare = false;
+            return;
+
+        }
         for(int i = 0; i < board.size(); i++){
            numberButtons.get(i).setEnabled(board.possible(x,y)[i]);
         }
