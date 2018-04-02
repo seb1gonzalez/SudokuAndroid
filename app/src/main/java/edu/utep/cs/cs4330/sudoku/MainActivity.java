@@ -4,22 +4,19 @@ package edu.utep.cs.cs4330.sudoku;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
-import android.view.ContextMenu;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.Inflater;
 
 import edu.utep.cs.cs4330.sudoku.model.Board;
-import edu.utep.cs.cs4330.sudoku.model.Puzzle;
+
+
 
 /**
  * HW1 template for developing an app to play simple Sudoku games.
@@ -44,7 +41,7 @@ import edu.utep.cs.cs4330.sudoku.model.Puzzle;
 public class MainActivity extends AppCompatActivity {
 
     private Board board;
-    private Puzzle puzzle;
+
 
 
     private BoardView boardView;
@@ -73,13 +70,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         board = new Board();
-        puzzle = new Puzzle();
+
+        board.level =1;
         board.setSize(9);
-        board.level = 1;
-        puzzle.generatePuzzle();
+        board.setGrid();
         boardView = findViewById(R.id.boardView);
         boardView.setBoard(board);
         boardView.buildPuzzles();
+        boardView.newGame();
         boardView.addSelectionListener(this::squareSelected);
 
 
@@ -99,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_Solve:
-                boardView.solutionRequested = true;
+
                 boardView.invalidate();
                 toast("Puzzle solved");
                 return true;
@@ -134,31 +132,32 @@ public class MainActivity extends AppCompatActivity {
 
     /**changes booleans in BoardView and re-draws canvas*/
     public void easyClicked(){
+        board.level = 1;
         boardView.changeNumber= false;
         boardView.squareTouched = false;
-        board.level = 1;
         toast("Easy Puzzle");
-        boardView.newGame();
+        board.setGrid();
         boardView.invalidate();
 
 
     }
     /**changes booleans in BoardView and re-draws canvas*/
     public void mediumClicked(){
+        board.level=2;
         boardView.changeNumber= false;
         boardView.squareTouched = false;
-        board.level = 2;
-        boardView.newGame();
+
+        board.setGrid();
         toast("Medium Puzzle");
         boardView.invalidate();
 
     }
     /**changes booleans in BoardView and re-draws canvas*/
     public void hardClicked(){
+        board.level = 3;
         boardView.changeNumber= false;
         boardView.squareTouched = false;
-        board.level = 3;
-        boardView.newGame();
+        board.setGrid();
         boardView.invalidate();
 
         toast("Hard Puzzle");
@@ -166,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
     }
     /** Callback to be invoked when the new button is tapped. */
     public void newClicked(View view) {
-        boardView.newGame();
+        board.setGrid();
         boardView.invalidate();
         toast("New game started");
 
@@ -182,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
         if(boardView.squareTouched) {
             boardView.numberSelected = n;
             boardView.changeNumber = true;
+            boardView.invalidate();
         }
         else{
             boardView.changeNumber = false;
@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
         boardView.xPosSelected = x;
         boardView.yPosSelected = y;
         for(int i = 0; i < board.size(); i++){
-            numberButtons.get(i).setEnabled(board.possible(x,y)[i]);
+           // numberButtons.get(i).setEnabled(board.possible(x,y)[i]);
         }
         if(board.size() == 4){
             for(int i = 4; i<9; i++){

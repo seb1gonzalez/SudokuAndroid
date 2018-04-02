@@ -11,8 +11,9 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import java.util.ArrayList;
 import java.util.List;
-import edu.utep.cs.cs4330.sudoku.model.Board;
-import edu.utep.cs.cs4330.sudoku.model.Puzzle;
+import edu.utep.cs.cs4330.sudoku.model.*;
+
+
 
 /**
  * A special view class to display a Sudoku board modeled by the
@@ -24,8 +25,8 @@ import edu.utep.cs.cs4330.sudoku.model.Puzzle;
  */
 public class BoardView extends View {
 
-   private Puzzle puzzle = new Puzzle();
    private Solver solver = new Solver();
+
 
 
 
@@ -63,17 +64,9 @@ public class BoardView extends View {
     private final List<SelectionListener> listeners = new ArrayList<>();
     /** Board to be displayed by this view. */
     private Board board = new Board();
+    private int[][] grid = new int[board.size][board.size];
     /** Number of squares in rows and columns.*/
     private int boardSize = board.size();
-    int[][] easy=  new int[boardSize][boardSize];
-
-
-
-
-
-
-
-
 
     /** Width and height of each square. This is automatically calculated
      * this view's dimension is changed. */
@@ -89,6 +82,8 @@ public class BoardView extends View {
     private final Paint boardPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint linesPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint markPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    Paint solutionPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    Paint numbersPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
    // protected  ArrayList<ArrayList<Integer>> numbersInserted = new ArrayList<>();
 
@@ -120,10 +115,9 @@ public class BoardView extends View {
     /** Set the board to be displayed by this view. */
     public void setBoard(Board board) {
         this.board = board;
-        boardSize = board.size;
     }
     public void buildPuzzles(){
-        puzzle.generatePuzzle();
+        board.setGrid();
 
     }
 
@@ -133,14 +127,23 @@ public class BoardView extends View {
         super.onDraw(canvas);
 
         canvas.translate(transX, transY);
+        getGrid();
         if (board != null) {
+            drawPuzzles(canvas);
+            if(changeNumber){
+                putNumber(canvas);
+            }
 
 
             drawGrid(canvas);
+            if(newGameRequested){
+                newGame();
+            }
 
             if(solutionRequested){
                solvePuzzles();
             }
+
             if(markTheSquare){
                 markSelection(canvas);
             }
@@ -207,7 +210,6 @@ public class BoardView extends View {
 
     private void solvePuzzles(){
         solver.solveSudoku(board.grid);
-        invalidate();
     }
     public void markSelection(Canvas canvas){
 
@@ -241,6 +243,66 @@ public class BoardView extends View {
         newGameRequested=false;
 
         }
+    public void drawPuzzles(Canvas canvas) {
+        board.setGrid();
+        if (board.easy) {
+            numbersPaint.setColor(Color.WHITE);
+        }
+        if (board.medium) {
+            numbersPaint.setColor(Color.GREEN);
+
+        }
+        if (board.hard) {
+            numbersPaint.setColor(Color.RED);
+
+        }
+        if (solutionRequested) {
+            displaySolution(canvas);
+            solutionRequested = false;
+        }
+        for (int y = 0; y < boardSize; y++) {
+            for (int x = 0; x < boardSize; x++) {
+                if (board.grid[y][x] == 0) {
+                    canvas.drawText(" ", x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, numbersPaint);
+                } else {
+                    canvas.drawText(String.valueOf(board.grid[y][x]), x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, numbersPaint);
+                }
+            }
+        }
+    }
+
+    private void getGrid() {
+        board.setGrid();
+        for (int i = 0; i <board.size ; i++) {
+            for (int j = 0; j < board.size ; j++) {
+                grid[i][j] = board.grid[i][j];
+
+            }
+
+        }
+
+    }
+
+    public void displaySolution(Canvas canvas) {
+        solver.solveSudoku(board.grid);
+
+        if (big) {
+
+            solutionPaint.setTextSize(90);
+        }
+        if (small) {
+
+            solutionPaint.setTextSize(190);
+        }
+
+        for (int y = 0; y < boardSize; y++) {
+            for (int x = 0; x < boardSize; x++) {
+                solutionPaint.setColor(Color.CYAN);
+
+                canvas.drawText(String.valueOf(board.grid[y][x]), x * (maxCoord() / boardSize) + 60, (y + 1) * (maxCoord() / boardSize) - 30, solutionPaint);
+            }
+        }
+    }
 
 
     /** Overridden here to detect tapping on the board and

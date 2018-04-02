@@ -1,28 +1,25 @@
 //Sebastian Gonzalez
 package edu.utep.cs.cs4330.sudoku.model;
 
-import java.util.Random;
 import java.lang.Math;
+import java.util.Random;
 
-import edu.utep.cs.cs4330.sudoku.Solver;
+
+import edu.utep.cs.cs4330.sudoku.*;
+
 
 /**
  * An abstraction of Sudoku puzzle.
  */
 public class Board {
-
     public boolean easy = false;
     public boolean medium = false;
     public boolean hard = false;
-    public int[][] grid ; // this grid is the one displayed
-
-
 
     public int size = 9;
-    public int sqrt = (int) Math.sqrt(size);
     public int level = 1;
-    private Solver solver = new Solver();
-
+    public int[][] grid = new int[size][size];
+    public int sqrt = (int) Math.sqrt(size);
 
 
     /**
@@ -33,8 +30,22 @@ public class Board {
     public void setSize(int size) {
         this.size = size;
     }
+//    public void setGrid(){
+//        Solver solver = new Solver();
+//
+//
+//        for(int j = 0; j < size;j++){
+//            grid[j][j] = j;
+//        }
+//
+//
+//        solver.solveSudoku(grid);
+//
+//    }
 
     public void setGrid(){
+Solver solver = new Solver();
+
         Random r = new Random();
         int n;
 
