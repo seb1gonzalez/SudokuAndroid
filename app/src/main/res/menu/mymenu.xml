@@ -2,6 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="edu.utep.cs.cs4330.sudoku.MainActivity">
+
     <item
         android:id="@+id/action_Menu"
         android:layout_height="wrap_content"
@@ -29,12 +30,12 @@
         android:title="Size"
         app:showAsAction="never">
         <menu>
-        <item
-            android:id="@+id/action9x9menu"
-            android:title="9x9" />
-        <item
-            android:id="@+id/action4x4menu"
-            android:title="4x4" />
+            <item
+                android:id="@+id/action9x9menu"
+                android:title="9x9" />
+            <item
+                android:id="@+id/action4x4menu"
+                android:title="4x4" />
         </menu>
     </item>
 </menu>

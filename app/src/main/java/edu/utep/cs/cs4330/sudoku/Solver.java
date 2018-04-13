@@ -1,35 +1,37 @@
 package edu.utep.cs.cs4330.sudoku;
 
-
-
-import edu.utep.cs.cs4330.sudoku.model.*;
-
-
 public class Solver {
-    private static Board board = new Board();
+    static int sqrt;
 
+    /**
+     * Checks what entries are valid in a given square
+     * @param board the board on which valid entries are checked
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     * @return a boolean array where the value at each index tells if the index is a valid entry
+     */
+    private static boolean[] possible(int[][] board, int x, int y) {
+        int size = board.length;
+        boolean[] possible = new boolean[size + 1];
+        sqrt = (int)Math.sqrt(size);
 
-    public boolean[] possible(int[][] copy, int x, int y) {
-
-        boolean[] possible = new boolean[board.size + 1];
-
-        for (int i = 0; i <= board.size; i++) {
+        for (int i = 0; i <= size; i++) {
             possible[i] = true;
         }
 
-        for (int i = 0; i < board.size; i++) {
-            for (int n = 1; n < (board.size + 1); n++) {
-                if (copy[x][i] == n || copy[i][y] == n) {
+        for (int i = 0; i < size; i++) {
+            for (int n = 1; n < (size + 1); n++) {
+                if (board[x][i] == n || board[i][y] == n) {
                     possible[n] = false;
                 }
             }
         }
 
 
-        for (int i = 0; i < board.sqrt; i++) {
-            for (int j = 0; j < board.sqrt; j++) {
-                for (int n = 1; n <= board.size; n++) {
-                    if (copy[(x / board.sqrt) * board.sqrt + i][(y / board.sqrt) * board.sqrt + j] == n) {
+        for (int i = 0; i < sqrt; i++) {
+            for (int j = 0; j < sqrt; j++) {
+                for (int n = 1; n <= size; n++) {
+                    if (board[(x / sqrt) * sqrt + i][(y / sqrt) * sqrt + j] == n) {
                         possible[n] = false;
                     }
                 }
@@ -38,14 +40,39 @@ public class Solver {
         return possible;
     }
 
-    public boolean solveSudoku(int[][] copy) {
+    /**
+     * checks if the current configuration is solveable
+     * @param board
+     * @return boolean describing if the current configuration is solveable
+     */
+    public static boolean solveable(int[][] board){
+        int size = board.length;
+        int[][] copy = new int[size][size];
+
+        for(int i = 0; i < size; i++){
+            for (int j = 0; j < size; j++) {
+                copy[i][j] = board[i][j];
+            }
+        }
+
+        return solveSudoku(copy);
+    }
+
+
+
+    /**
+     * solves the given sudoku board
+     * @param board
+     * @return true if the sudoku board can be solved
+     */
+    public static boolean solveSudoku(int[][] board) {
         int x = -1;
         int y = -1;
+        int size = board.length;
 
-
-        for (int i = 0; i < board.size; i++) {
-            for (int j = 0; j < board.size; j++) {
-                if (copy[i][j] == 0) {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (board[i][j] == 0) {
                     x = i;
                     y = j;
                 }
@@ -56,13 +83,13 @@ public class Solver {
             return true;
         }
 
-        for (int i = 1; i <= board.size; i++) {
-            if (possible(copy, x, y)[i]) {
-                copy[x][y] = i;
-                if (solveSudoku(copy)) {
+        for (int i = 1; i <= size; i++) {
+            if (possible(board, x, y)[i]) {
+                board[x][y] = i;
+                if (solveSudoku(board)) {
                     return true;
                 }
-                copy[x][y] = 0;
+                board[x][y] = 0;
             }
         }
         return false;

@@ -1,23 +1,47 @@
-//Sebastian Gonzalez
-
 package edu.utep.cs.cs4330.sudoku;
+
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
+import android.content.Intent;
+import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+
+//------for p2p, wifi Direct ------- //
+import android.content.IntentFilter;
+import android.net.wifi.WifiManager;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pManager;
+import android.net.wifi.p2p.WifiP2pManager.Channel;
+// ------------------------------------------//
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import edu.utep.cs.cs4330.sudoku.model.Board;
-
-
 
 /**
  * HW1 template for developing an app to play simple Sudoku games.
@@ -37,18 +61,24 @@ import edu.utep.cs.cs4330.sudoku.model.Board;
  *  }
  * </pre>
  *
-1 * @author Yoonsik Cheon
+ * @author Yoonsik Cheon
  */
 public class MainActivity extends AppCompatActivity {
 
-    private static Board board;
-    private Button solveButton;
-
-
-
+    private Board board;
     private BoardView boardView;
-    /**Buttons to represent levels of difficulty*/
+    private WifiP2pManager mManager;
+    private WifiManager wifiManager;
+    private Channel mChannel;
+    private BroadcastReceiver mReceiver;
+    private IntentFilter mIntentFilter;
+    private ToggleButton bluetoothBTN, p2pBTN, wifiBTN;
 
+    private List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
+    private String[] deviceNameArray;// show devices names
+    private WifiP2pDevice[] deviceArray;// connect to a device
+
+    /**Buttons to represent levels of difficulty*/
 
     /** All the number buttons. */
     private List<View> numberButtons;
@@ -59,6 +89,22 @@ public class MainActivity extends AppCompatActivity {
 
     /** Width of number buttons automatically calculated from the screen size. */
     private static int buttonWidth;
+
+    private int x=-1, y=-1;
+
+    private BluetoothAdapter adapter;
+    private BluetoothDevice peer;
+    private NetworkAdapter netAd;
+    private BluetoothServerSocket server;
+    private BluetoothSocket client;
+    private List<BluetoothDevice> listDevices;
+    private ArrayList<String> nameDevices;
+    private int temp;
+    private PrintStream logger;
+    private OutputStream outSt;
+    public static final java.util.UUID MY_UUID = java.util.UUID.fromString("1a9a8d20-3db7-11e8-b467-0ed5f89f718b");
+    private NetworkAdapter connection;
+    private NetworkAdapter.MessageListener heyListen;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -71,8 +117,30 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        bluetoothBTN = findViewById(R.id.blueTbtn);
+        wifiBTN = findViewById(R.id.wifiBTN);
+        p2pBTN = findViewById(R.id.p2pBTN);
+
+        wifiBTN.setOnClickListener(view -> toggleWifi());
+        bluetoothBTN.setOnClickListener(view -> toggleBluetooth());
+        p2pBTN.setOnClickListener(view -> toggleP2P());
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+        mChannel = mManager.initialize(this,getMainLooper(),null);
+        mReceiver = new WiFiDirectBroadcastReceiver(mManager,mChannel,this);
+
+
+        mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+
+        board = new Board();
         boardView = findViewById(R.id.boardView);
-        solveButton = findViewById(R.id.solve_Button);
+        boardView.setBoard(board);
+        boardView.addSelectionListener(this::squareSelected);
+        board.setGrid();
 
         numberButtons = new ArrayList<>(numberIds.length);
         for (int i = 0; i < numberIds.length; i++) {
@@ -81,119 +149,171 @@ public class MainActivity extends AppCompatActivity {
             button.setOnClickListener(e -> numberClicked(number));
             numberButtons.add(button);
             setButtonWidth(button);
+            button.setEnabled(false);
         }
 
-        boardView.addSelectionListener(this::squareSelected);
-        board = new Board();
+        listDevices = new ArrayList<BluetoothDevice>();
+        nameDevices = new ArrayList<String>();
+        peer = null;
+        adapter = BluetoothAdapter.getDefaultAdapter();
+        outSt = new ByteArrayOutputStream(1024);
+        logger = new PrintStream(outSt);
 
-        boardView.buildPuzzles();
-        boardView.big = true;
+        heyListen = new NetworkAdapter.MessageListener() {
+            @Override
+            public void messageReceived(NetworkAdapter.MessageType type, int x, int y, int z, int[] others) {
+                switch (type.header){
+                    case "join:":
+                        break;
+                    case "join_ack:":
+                        break;
+                    case "new:":
+                        break;
+                    case "new_ack:":
+                        break;
+                    case "fill:":
+                        Log.d("Progress", "Progress");
+                        board.setNumber(x,y,z);
+                        break;
+                    case "fill_ack:":
+                        break;
+                    case "quit:":
+                        break;
+                }
+            }
+        };
+    }
 
-        board.level = 1;
-        board.size = 9;
-        board.sqrt = (int) Math.sqrt(board.size);
-        board.setGrid();
-        boardView.setBoard(board);
+    private void toggleP2P() {
+        mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                toast("discovery success");
+                Intent intentActivity = new Intent(MainActivity.this, P2PListActivity.class);
+                startActivity(intentActivity);
 
+            }
 
+            @Override
+            public void onFailure(int i) {
+                toast("discovery failure");
 
+            }
+        });
 
-
-        toast("Select a square first, then a number");
 
 
     }
+    WifiP2pManager.PeerListListener peerListListener = new WifiP2pManager.PeerListListener() {
+        @Override
+        public void onPeersAvailable(WifiP2pDeviceList peersList) {
+            if(!peersList.getDeviceList().equals(peers)){
+                peers.clear();
+                peers.addAll(peersList.getDeviceList());
+
+                deviceNameArray = new String[peersList.getDeviceList().size()];
+                deviceArray = new WifiP2pDevice[peersList.getDeviceList().size()];
+                int index = 0;
+                for(WifiP2pDevice device : peersList.getDeviceList()){
+                    deviceNameArray[index] = device.deviceName;
+                    deviceArray[index] = device;
+                    index++;
+                }
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(),android.R.layout.simple_list_item_1,deviceNameArray);
+                P2PListActivity.listView.setAdapter(adapter);
+            }
+            if(peers.size() == 0){
+                toast("No devices found :(");
+            }
+
+        }
+    };
+
+    private void toggleBluetooth() {
+        toast("Bluetooth");
+
+    }
+
+    private void toggleWifi() {
+        netAd.startCommunications();
+            if (wifiManager.isWifiEnabled()) {
+                toast("turning WIFI off");
+                wifiManager.setWifiEnabled(false);
+            } else {
+                toast("turning WIFI on");
+                wifiManager.setWifiEnabled(true);
+            }
+        }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.easyMenu:
-                easyClicked();
+                board.setLevel(1);
+                boardView.setBoard(board);
+                boardView.noneSelected();
+                boardView.postInvalidate();
+                for(int i = 0; i < board.getGrid().length; i++){
+                    numberButtons.get(i).setEnabled(false);
+                }
                 return true;
             case R.id.mediumMenu:
-                mediumClicked();
+                board.setLevel(2);
+                boardView.setBoard(board);
+                boardView.noneSelected();
+                boardView.postInvalidate();
+                for(int i = 0; i < board.getGrid().length; i++){
+                    numberButtons.get(i).setEnabled(false);
+                }
                 return true;
             case R.id.hardMenu:
-                hardClicked();
+                board.setLevel(3);
+                boardView.setBoard(board);
+                boardView.noneSelected();
+                boardView.postInvalidate();
+                for(int i = 0; i < board.getGrid().length; i++){
+                    numberButtons.get(i).setEnabled(false);
+                }
                 return true;
             case R.id.action4x4menu:
-                if(boardView.small == true){
-                    toast("Grid is already of size 4 x 4");
-                    return  true;
-
+                board.setSize(4);
+                boardView.setBoard(board);
+                boardView.noneSelected();
+                boardView.postInvalidate();
+                for(int i = 0; i < board.getGrid().length; i++){
+                    numberButtons.get(i).setEnabled(false);
                 }
-                else {
-                    board.setSize(4);
-                    boardView.small = true;
-                    boardView.big = false;
-                    boardView.setBoard(board);
-                    boardView.invalidate();
-                    toast("Size changed to " + String.valueOf(board.size()));
-                    return true;
-                }
+                toast("Size changed to "+String.valueOf(board.getSize()));
+                return true;
             case R.id.action9x9menu:
-                if(boardView.big== true){
-                    toast("Grid is already of size 9 x 9");
-                    return  true;
+                board.setSize(9);
+                boardView.setBoard(board);
+                boardView.noneSelected();
+                boardView.postInvalidate();
+                for(int i = 0; i < board.getGrid().length; i++){
+                    numberButtons.get(i).setEnabled(false);
                 }
-                else {
-                    board.setSize(9);
-                    board.size = 9;
-                    boardView.big = true;
-                    boardView.small = false;
-                    boardView.setBoard(board);
-
-                    boardView.invalidate();
-                    toast("Size changed to " + String.valueOf(board.size()));
-                    return true;
-                }
+                toast("Size changed to "+String.valueOf(board.getSize()));
+                return true;
         }
         return true;
     }
 
-    /**changes booleans in BoardView and re-draws canvas*/
-    public void easyClicked(){
-        boardView.resetInputs();
-        board.level = 1;
-        boardView.changeNumber= false;
-        boardView.squareTouched = false;
-        toast("Easy Puzzle");
-        board.setGrid();
-        boardView.invalidate();
-
-
-    }
-    /**changes booleans in BoardView and re-draws canvas*/
-    public void mediumClicked(){
-        boardView.resetInputs();
-        board.level=2;
-        boardView.changeNumber= false;
-        boardView.squareTouched = false;
-
-        board.setGrid();
-        toast("Medium Puzzle");
-        boardView.invalidate();
-
-    }
-    /**changes booleans in BoardView and re-draws canvas*/
-    public void hardClicked(){
-        boardView.resetInputs();
-        board.level = 3;
-        boardView.changeNumber= false;
-        boardView.squareTouched = false;
-        board.setGrid();
-        boardView.invalidate();
-
-        toast("Hard Puzzle");
-
-    }
     /** Callback to be invoked when the new button is tapped. */
     public void newClicked(View view) {
-        boardView.resetInputs();
         board.setGrid();
-        boardView.invalidate();
+        boardView.noneSelected();
+        boardView.postInvalidate();
+        for(int i = 0; i < board.getGrid().length; i++){
+            numberButtons.get(i).setEnabled(false);
+        }
         toast("New game started");
 
+    }
+
+    public void solveClicked(View view){
+        Solver.solveSudoku(board.getGrid());
+        boardView.postInvalidate();
     }
 
     /** Callback to be invoked when a number button is tapped.
@@ -202,15 +322,11 @@ public class MainActivity extends AppCompatActivity {
      *          or 0 for the delete button.
      */
     public void numberClicked(int n) {
-
-        if(boardView.markTheSquare) {
-            boardView.numberSelected = n;
-            boardView.changeNumber = true;
-            boardView.invalidate();
-        }
-        else{
-            boardView.changeNumber = false;
-            toast("Select a square first");
+        toast("Number clicked: " + n);
+        board.setNumber(x, y, n);
+        boardView.postInvalidate();
+        if(board.complete()){
+            Toast.makeText(this, "Congratulations! The puzzle is complete!", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -221,28 +337,26 @@ public class MainActivity extends AppCompatActivity {
      * @param x 0-based row index of the selected square.
      */
     private void squareSelected(int x, int y) {
-        boardView.xPosSelected = x;
-        boardView.yPosSelected = y;
-        if(board.grid[y][x] != 0){
-            toast("Pick another Square");
-            boardView.markTheSquare = false;
-            return;
-
-        }
-        for(int i = 0; i < board.size(); i++){
-          numberButtons.get(i).setEnabled(board.possible(x,y)[i]);
-        }
-        if(board.size() == 4){
-            for(int i = 5; i < 10; i++){
+        toast(String.format("Square selected: (%d, %d)", x, y));
+        boolean[] possible = board.possible(x,y);
+        this.x = x;
+        this.y = y;
+        if(board.original(x,y)){
+            for(int i = 0; i < possible.length; i++){
                 numberButtons.get(i).setEnabled(false);
             }
-            for(int i = 0; i < 5; i++){
-                numberButtons.get(i).setEnabled(true);
+            boardView.postInvalidate();
+            return;
+        }
+        for(int i = 0; i < possible.length; i++){
+            numberButtons.get(i).setEnabled(possible[i]);
+        }
+        if(board.getSize() == 4){
+            for(int i = 5; i<10; i++){
+                numberButtons.get(i).setEnabled(false);
             }
         }
-        boardView.markTheSquare = true;
-        boardView.invalidate();
-
+        boardView.postInvalidate();
     }
 
 
@@ -263,9 +377,157 @@ public class MainActivity extends AppCompatActivity {
         view.setLayoutParams(params);
     }
 
-    public void solveSudoku(View view) {
-        boardView.solutionRequested = true;
-        boardView.invalidate();
-        toast("Puzzle solved");
+    /**
+     * Callback to be invoked when the solveable button is clicked
+     */
+    public void solvableClicked(View view) {
+        if (Solver.solveable(board.getGrid())) {
+            Toast.makeText(this, "The board is solveable", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "The board is not solveable", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /** Callback to be invoked when the help button is clicked */
+    public void helpClicked(View view) {
+        if(boardView.help == false){
+            boardView.help = true;
+        }else{
+            boardView.help = false;
+        }
+        boardView.postInvalidate();
+    }
+
+    //Client Functions
+    public void onClient(View v){
+        if (!adapter.isEnabled()) {
+            Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(turnOn, 0);
+            listDevices = new ArrayList<BluetoothDevice>();
+            nameDevices = new ArrayList<String>();
+            for (BluetoothDevice b : adapter.getBondedDevices()) {
+                listDevices.add(b);
+                nameDevices.add(b.getName());
+            }
+            Toast.makeText(getApplicationContext(), "Turned on",Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(getApplicationContext(), "Already on", Toast.LENGTH_LONG).show();
+            listDevices = new ArrayList<BluetoothDevice>();
+            nameDevices = new ArrayList<String>();
+            for (BluetoothDevice b : adapter.getBondedDevices()) {
+                listDevices.add(b);
+                nameDevices.add(b.getName());
+            }
+        }
+    }
+
+
+    public void ConnectThread(BluetoothDevice device) {
+        BluetoothSocket tmp = null;
+        peer = device;
+        try {
+            tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
+        }
+        catch (IOException e) {
+            Log.e("error_socket", "Socket: " + tmp.toString() + " create() failed", e);
+        }
+
+        client = tmp;
+        Log.d("socket", peer.toString());
+    }
+
+    public void runClient() {
+        // Cancel discovery because it otherwise slows down the connection.
+        adapter.cancelDiscovery();
+
+        try {
+            // Connect to the remote device through the socket. This call blocks
+            // until it succeeds or throws an exception.
+            client.connect();
+        } catch (IOException connectException) {
+            // Unable to connect; close the socket and return.
+            try {
+                client.close();
+            } catch (IOException closeException) {
+                Log.e("Close socket", "Could not close the client socket", closeException);
+            }
+            return;
+        }
+
+        // The connection attempt succeeded. Perform work associated with
+        // the connection in a separate thread.
+
+        toast("Connected");
+        if(client == null){
+            toast("Null client");
+        }else {
+            connection = new NetworkAdapter(client, logger);
+            connection.setMessageListener(heyListen);
+            connection.receiveMessagesAsync();
+        }
+    }
+
+    public void off(View v){
+        adapter.disable();
+        Toast.makeText(getApplicationContext(), "Turned off" ,Toast.LENGTH_LONG).show();
+    }
+
+    public void clientClickedApp(View view) {
+        //utilities.clientClicked(view);
+        onClient(view);
+        // setup the alert builder
+        if (listDevices.isEmpty()) {
+            Intent turnOn = new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+            startActivityForResult(turnOn, 0);
+            onClient(view);
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Paired Devices");
+
+        String[] arrDevices = nameDevices.toArray(new String[nameDevices.size()]);
+        int checkedItem = 0;
+        builder.setSingleChoiceItems(arrDevices, checkedItem, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                toast(arrDevices[which]);
+                temp = which;
+            }
+        });
+
+        builder.setPositiveButton("CONNECT", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                peer = listDevices.get(temp);
+                Log.d("devices", peer.getAddress());
+                ConnectThread(peer);
+                runClient();
+            }
+        });
+        builder.setNeutralButton("PAIR", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent turnOn = new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+                startActivityForResult(turnOn, 0);
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    /**P2p methods*/
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(mReceiver,mIntentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mReceiver);
     }
 }
